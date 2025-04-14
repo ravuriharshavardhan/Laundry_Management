@@ -12,12 +12,12 @@ import AntDesign from "react-native-vector-icons/AntDesign";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 
-import AuthStack from "./Source/navigation/AuthStack";
-import SchedulePickUpScreen from "./Source/screens/Main/SchedulePickUpScreen/SchedulePickUpScreen";
-import MyOrdersScreen from "./Source/screens/Main/MyOrdersScreen/MyOrdersScreen";
-import Ratelist from "./Source/screens/Main/RatelistScreen/RatelistScreen";
-import ProfileScreen from "./Source/screens/Main/ProfileScreen/ProfileScreen";
-import colors from "./Source/utils/colors";
+import AuthStack from "./Src/navigation/AuthStack";
+import SchedulePickUpScreen from "./Src/screens/Main/SchedulePickUpScreen/SchedulePickUpScreen";
+import MyOrdersScreen from "./Src/screens/Main/MyOrdersScreen/MyOrdersScreen";
+import Ratelist from "./Src/screens/Main/RatelistScreen/RatelistScreen";
+import ProfileScreen from "./Src/screens/Main/ProfileScreen/ProfileScreen";
+import colors from "./Src/utils/colors";
 
 
 const Tab = createBottomTabNavigator();
