@@ -1,118 +1,143 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+// App.js
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { NavigationContainer } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import Icon from "react-native-vector-icons/Ionicons";
+import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import AntDesign from "react-native-vector-icons/AntDesign";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import AuthStack from "./Source/navigation/AuthStack";
+import SchedulePickUpScreen from "./Source/screens/Main/SchedulePickUpScreen/SchedulePickUpScreen";
+import MyOrdersScreen from "./Source/screens/Main/MyOrdersScreen/MyOrdersScreen";
+import Ratelist from "./Source/screens/Main/RatelistScreen/RatelistScreen";
+import ProfileScreen from "./Source/screens/Main/ProfileScreen/ProfileScreen";
+import colors from "./Source/utils/colors";
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+const Tab = createBottomTabNavigator();
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+const BottomTabs = () => (
+  <Tab.Navigator
+    screenOptions={({ route }) => ({
+  tabBarStyle: {
+    backgroundColor: colors.BottomBarColor,
+    borderRadius: 50,
+marginHorizontal:21,
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+    marginBottom: 20,
+    height: 60,
+    position: "absolute",
+    elevation: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    paddingBottom: 25,
+    justifyContent: "center", // Center the content of the tab bar
+    flexDirection: "row", // Align items horizontally
+    alignItems: "center", // Ensure the icons are vertically centered
+    paddingLeft: 0, // Remove any extra left padding
+    paddingRight: 0, // Remove any extra right padding
+    width: "90%", // Ensure it takes full width
+  },
+  tabBarShowLabel: false,
+  headerShown: false,
+  tabBarIcon: ({ focused, color, size }) => {
+    let iconName;
 
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+    if (route.name === "Calendar") {
+      return (
+        <View style={{ alignItems: "center", justifyContent: "center" }}>
+          <MaterialIcon
+            name="calendar-month"
+            size={30}
+            color={focused ? "#000" : "#fff"}
+          />
         </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
+      );
+    } else {
+      if (route.name === "Cart") {
+        return(
+          <View style={{ alignItems: "center", justifyContent: "center" }}>
+        <AntDesign
+          name="shoppingcart"
+          size={30}
+          color={focused ? "#000" : "#fff"}
+        />
+      </View>
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+        )
+        
+      } else if (route.name === "Payments") {
+        return (
+          <View style={{ alignItems: "center", justifyContent: "center" }}>
+            <FontAwesome
+              name="rupee"
+              size={30}
+              color={focused ? "#000" : "#fff"}
+            />
+          </View>
+        );
+      } else if (route.name === "Profile") {
+        return (
+          <View style={{ alignItems: "center", justifyContent: "center" }}>
+            <Ionicons
+              name="person-outline"
+              size={30}
+              color={focused ? "#000" : "#fff"}
+            />
+          </View>
+        );
+      }
+
+      return (
+        <View style={{ alignItems: "center", justifyContent: "center" }}>
+          <Icon name={iconName} size={32}          color={focused ? "#000" : "#fff"} />
+        </View>
+      );
+    }
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+})}
+
+  >
+    <Tab.Screen name="Calendar" component={SchedulePickUpScreen} />
+    <Tab.Screen name="Cart" component={MyOrdersScreen} />
+    <Tab.Screen name="Payments" component={Ratelist} />
+    <Tab.Screen name="Profile" component={ProfileScreen} />
+  </Tab.Navigator>
+);
+
+
+const App = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = await AsyncStorage.getItem("userToken");
+      setIsAuthenticated(!!token);
+    };
+    checkAuth();
+  }, []);
+
+  if (isAuthenticated === null) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  return (
+    <NavigationContainer>
+      {isAuthenticated ? <BottomTabs /> : <AuthStack />}
+    </NavigationContainer>
+  );
+};
 
 export default App;
