@@ -1,6 +1,7 @@
 const fonts = {
-    primary: "trebuc"
-  };
-  
-  export default fonts;
-  
+  primary: "trebuc",
+  lable: "Trebuchet-MS-Italic",
+  secondary: "Coda-Regular"
+};
+
+export default fonts;
