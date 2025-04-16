@@ -1,111 +1,84 @@
 // App.js
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import {
+  ActivityIndicator,
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Icon from "react-native-vector-icons/Ionicons";
 import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import Ionicons from "react-native-vector-icons/Ionicons";
-
-
-import AuthStack from "./Src/navigation/AuthStack";
 import SchedulePickUpScreen from "./Src/screens/Main/SchedulePickUpScreen/SchedulePickUpScreen";
 import MyOrdersScreen from "./Src/screens/Main/MyOrdersScreen/MyOrdersScreen";
 import Ratelist from "./Src/screens/Main/RatelistScreen/RatelistScreen";
 import ProfileScreen from "./Src/screens/Main/ProfileScreen/ProfileScreen";
-import colors from "./Src/utils/colors";
+import SignUp from "./Src/screens/Auth/Screens/Signup";
+import SignUp2 from "./Src/screens/Auth/Screens/SignUp2";
+import Login from "./Src/screens/Auth/Screens/Login";
+import ManageCloths from "./Src/screens/Main/ManageCloths/ManageCloths";
 
 
+
+// Color utility
+const colors = {
+  BottomBarColor: "#F49905",
+};
+
+// Stack & Tabs
+const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const BottomTabs = () => (
+// Bottom Tabs
+const MainTabs = () => (
   <Tab.Navigator
     screenOptions={({ route }) => ({
-  tabBarStyle: {
-    backgroundColor: colors.BottomBarColor,
-    borderRadius: 50,
-marginHorizontal:21,
-
-    marginBottom: 20,
-    height: 60,
-    position: "absolute",
-    elevation: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    paddingBottom: 25,
-    justifyContent: "center", // Center the content of the tab bar
-    flexDirection: "row", // Align items horizontally
-    alignItems: "center", // Ensure the icons are vertically centered
-    paddingLeft: 0, // Remove any extra left padding
-    paddingRight: 0, // Remove any extra right padding
-    width: "90%", // Ensure it takes full width
-  },
-  tabBarShowLabel: false,
-  headerShown: false,
-  tabBarIcon: ({ focused, color, size }) => {
-    let iconName;
-
-    if (route.name === "Calendar") {
-      return (
-        <View style={{ alignItems: "center", justifyContent: "center" }}>
-          <MaterialIcon
-            name="calendar-month"
-            size={30}
-            color={focused ? "#000" : "#fff"}
-          />
-        </View>
-      );
-    } else {
-      if (route.name === "Cart") {
-        return(
-          <View style={{ alignItems: "center", justifyContent: "center" }}>
-        <AntDesign
-          name="shoppingcart"
-          size={30}
-          color={focused ? "#000" : "#fff"}
-        />
-      </View>
-
-        )
-        
-      } else if (route.name === "Payments") {
-        return (
-          <View style={{ alignItems: "center", justifyContent: "center" }}>
-            <FontAwesome
-              name="rupee"
-              size={30}
-              color={focused ? "#000" : "#fff"}
-            />
-          </View>
-        );
-      } else if (route.name === "Profile") {
-        return (
-          <View style={{ alignItems: "center", justifyContent: "center" }}>
-            <Ionicons
-              name="person-outline"
-              size={30}
-              color={focused ? "#000" : "#fff"}
-            />
-          </View>
-        );
-      }
-
-      return (
-        <View style={{ alignItems: "center", justifyContent: "center" }}>
-          <Icon name={iconName} size={32}          color={focused ? "#000" : "#fff"} />
-        </View>
-      );
-    }
-  },
-})}
-
-  >
+      tabBarStyle: {
+        backgroundColor: colors.BottomBarColor,
+        borderRadius: 50,
+        marginHorizontal: 21,
+        marginBottom: 20,
+        height: 60,
+        position: "absolute",
+        elevation: 10,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        paddingBottom: 25,
+        justifyContent: "center",
+        flexDirection: "row",
+        alignItems: "center",
+        width: "90%",
+      },
+      tabBarShowLabel: false,
+      headerShown: false,
+      tabBarIcon: ({ focused }) => {
+        const color = focused ? "#000" : "#fff";
+        switch (route.name) {
+          case "Calendar":
+            return <MaterialIcon name="calendar-month" size={30} color={color} />;
+          case "Cart":
+            return <AntDesign name="shoppingcart" size={30} color={color} />;
+          case "Payments":
+            return <FontAwesome name="rupee" size={30} color={color} />;
+          case "Profile":
+            return <Ionicons name="person-outline" size={30} color={color} />;
+          default:
+            return <Ionicons name="ellipse" size={30} color={color} />;
+        }
+      },
+    })}>
     <Tab.Screen name="Calendar" component={SchedulePickUpScreen} />
     <Tab.Screen name="Cart" component={MyOrdersScreen} />
     <Tab.Screen name="Payments" component={Ratelist} />
@@ -113,7 +86,25 @@ marginHorizontal:21,
   </Tab.Navigator>
 );
 
+// Auth stack
+const AuthStack = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="Login" component={Login} />
+    <Stack.Screen name="Signup" component={SignUp} />
+    <Stack.Screen name="SignUp2" component={SignUp2} />
+    <Stack.Screen name="MainTabs" component={HomeStack} />
+  </Stack.Navigator>
+);
 
+// Home stack (main after auth)
+const HomeStack = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="MainTabs" component={MainTabs} />
+    <Stack.Screen name="ManageCloths" component={ManageCloths} />
+  </Stack.Navigator>
+);
+
+// App
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
 
@@ -127,17 +118,57 @@ const App = () => {
 
   if (isAuthenticated === null) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View style={styles.screen}>
         <ActivityIndicator size="large" />
       </View>
     );
   }
 
   return (
-    <NavigationContainer>
-      {isAuthenticated ? <BottomTabs /> : <AuthStack />}
-    </NavigationContainer>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={{ flex: 1 }}>
+          <NavigationContainer>
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
+              {isAuthenticated ? (
+                <Stack.Screen name="Home" component={HomeStack} />
+              ) : (
+                <Stack.Screen name="Auth" component={AuthStack} />
+              )}
+            </Stack.Navigator>
+          </NavigationContainer>
+        </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
+
 };
 
 export default App;
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F5F5F5",
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 16,
+  },
+  button: {
+    backgroundColor: "#F49905",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+}); 

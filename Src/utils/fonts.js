@@ -1,7 +1,10 @@
 const fonts = {
-  primary: "trebuc",
-  lable: "Trebuchet-MS-Italic",
-  secondary: "Coda-Regular"
+  primary: "TrebuchetMS",         
+  label: "TrebuchetMS-Italic",  
+  secondary: "Coda-Regular",
+  HomeLabel:"Cinzel-Medium",
+  inputblabel:"VarelaRound-Regular",
+  dropdownlabel:"ARIALNB"
 };
 
 export default fonts;

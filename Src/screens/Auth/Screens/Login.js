@@ -11,7 +11,7 @@ import React, { useCallback, useState } from 'react';
 import CurvedCard from '../../../components/CurvedCard/CurvedCard';
 import colors from '../../../utils/colors';
 import fonts from '../../../utils/fonts';
-import CustomerInput from '../../../components/CustomInput/CustomInput';
+import CustomerInput from '../../../components/CustomInput/CustomInputA';
 import Icon from 'react-native-vector-icons/Ionicons';
 import CheckBox from 'react-native-check-box';
 import CustomGradientButton from '../../../components/CustomGradientButton/CustomGradientButton';
@@ -27,18 +27,23 @@ const Login = () => {
   const navigation = useNavigation()
 
 
-  const handleRegister = useCallback(()=>{
+  const handleRegister = useCallback(() => {
 
     navigation.navigate("Signup")
     setActiveTab('register')
 
-  },[navigation])
+  }, [navigation])
 
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>
-      <CurvedCard>
+      <CurvedCard height={860}
+  borderRadius={0}
+  curve1={{ c1: 30, c2: 500 }}
+  curve2={{ c1: 35, c2: -180 }}
+  sideShadowColor="rgba(0, 0, 0, 0)"
+>
         <Image
-          source={require('../../../assets/Images/LoginImage.png')}
+          source={require('../../../../assets/Images/LoginImage.png')}
           resizeMode="contain"
           style={styles.image}
         />
@@ -69,12 +74,14 @@ const Login = () => {
 
           <View style={styles.optionsRow}>
             <CheckBox
-              value={remember}
-              onClick={() => setRemember(!remember)}
-              isChecked={remember}
-              onValueChange={setRemember}
-              tintColors={{ true: colors.accent, false: colors.border }}
-            />
+                          style={styles.checkbox}
+                          value={remember}
+                          onClick={() => setRemember(!remember)}
+                          isChecked={remember}
+                          checkBoxColor="#fff" 
+                          onValueChange={setRemember}
+                          tintColors={{ true: "#B4A8A8", false: "#B4A8A8" }}
+                        />
             <Text style={styles.rememberText}>Remember password</Text>
             <TouchableOpacity style={{ marginLeft: 'auto' }}>
               <Text style={styles.link}>Forgot password</Text>
@@ -104,12 +111,12 @@ const Login = () => {
             <CustomButton
               title="Login with Google"
               onPress={() => console.log('Pressed')}
-              icon={require('../../../assets/Images/GoogleLogo.png')}
+              icon={require('../../../../assets/Images/GoogleLogo.png')}
             />
             <CustomButton
               title="Login with Mail"
               onPress={() => console.log('Pressed')}
-              icon={require('../../../assets/Images/GmailLogo.png')}
+              icon={require('../../../../assets/Images/GmailLogo.png')}
             />
           </View>
         </View>
@@ -208,7 +215,7 @@ const styles = StyleSheet.create({
     gap: 20,
     alignItems: 'center',
     justifyContent: "center",
-    marginVertical:20
+    marginVertical: 20
   },
   socialButton: {
     flexDirection: 'row',

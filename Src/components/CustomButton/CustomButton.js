@@ -1,9 +1,12 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, Image, View } from 'react-native';
 
-const CustomButton = ({ title, onPress, icon }) => {
+const CustomButton = ({ title, onPress, icon,backgroundColor, width = 247, height = 36 }) => {
   return (
-    <TouchableOpacity style={styles.button} onPress={onPress}>
+    <TouchableOpacity
+      style={[styles.button, { width, height },{backgroundColor:backgroundColor}]}
+      onPress={onPress}
+    >
       <View style={styles.content}>
         {/* Image on the left */}
         {icon && <Image source={icon} style={styles.icon} />}
@@ -16,15 +19,12 @@ const CustomButton = ({ title, onPress, icon }) => {
 
 const styles = StyleSheet.create({
   button: {
-    width: 247,
-    height: 36,
     borderRadius: 30,
-    backgroundColor: '#fff', // Customize as needed
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 12,
-    elevation: 4, // For Android shadow
+    elevation: 4,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -33,14 +33,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   icon: {
-    width: 20, // Customize the size of the icon
-    height: 20, // Customize the size of the icon
-    marginRight: 10, // Add space between the image and the text
+    width: 20,
+    height: 20,
+    marginRight: 10, // More appropriate than using `right`
   },
   text: {
-    color: '#747070', // Customize as needed
+    color: '#fff',
     fontSize: 14,
-    fontFamily: "Coda-Regular", // Ensure font is applied
+    fontFamily: "Coda-Regular",
   },
 });
 

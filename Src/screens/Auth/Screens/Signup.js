@@ -11,7 +11,7 @@ import React, { useCallback, useState } from 'react';
 import CurvedCard from '../../../components/CurvedCard/CurvedCard';
 import colors from '../../../utils/colors';
 import fonts from '../../../utils/fonts';
-import CustomerInput from '../../../components/CustomInput/CustomInput';
+import CustomerInput from '../../../components/CustomInput/CustomInputA';
 import CheckBox from 'react-native-check-box';
 import CustomGradientButton from '../../../components/CustomGradientButton/CustomGradientButton';
 import CustomButton from '../../../components/CustomButton/CustomButton';
@@ -37,9 +37,14 @@ const SignUp= () => {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>
-      <CurvedCard>
+        <CurvedCard height={860}
+  borderRadius={0}
+  curve1={{ c1: 30, c2: 500 }}
+  curve2={{ c1: 35, c2: -180 }}
+  sideShadowColor="rgba(0, 0, 0, 0)"
+>
         <Image
-          source={require('../../../assets/Images/LoginImage.png')}
+          source={require('../../../../assets/Images/LoginImage.png')}
           resizeMode="contain"
           style={styles.image}
         />
@@ -115,12 +120,12 @@ const SignUp= () => {
             <CustomButton
               title="Login with Google"
               onPress={() => console.log('Pressed')}
-              icon={require('../../../assets/Images/GoogleLogo.png')}
+              icon={require('../../../../assets/Images/GoogleLogo.png')}
             />
             <CustomButton
               title="Login with Mail"
               onPress={() => console.log('Pressed')}
-              icon={require('../../../assets/Images/GmailLogo.png')}
+              icon={require('../../../../assets/Images/GmailLogo.png')}
             />
           </View>
         </View>

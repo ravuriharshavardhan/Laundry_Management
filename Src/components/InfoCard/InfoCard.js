@@ -7,7 +7,7 @@ const InfoCard = ({ label = '', subtitle = '', highlight = '', imageSource }) =>
     return (
         <View style={styles.card}>
     {imageSource && (
-        <Image source={imageSource} style={styles.image} resizeMode="contain" />
+        <Image source={imageSource} style={styles.image} />
     )}
     <Text style={styles.title}>{label}</Text>
     <Text style={styles.subtitle}>{subtitle}</Text>
