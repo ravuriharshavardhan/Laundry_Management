@@ -27,7 +27,11 @@ import SignUp from "./Src/screens/Auth/Screens/Signup";
 import SignUp2 from "./Src/screens/Auth/Screens/SignUp2";
 import Login from "./Src/screens/Auth/Screens/Login";
 import ManageCloths from "./Src/screens/Main/ManageCloths/ManageCloths";
-
+import UserNotification from "./Src/screens/Main/UserNotification/UserNotification";
+import AddCloths from "./Src/screens/Main/ManageCloths/AddCloths";
+import UserListScreen from "./Src/screens/Main/Admin/UsersList/UsersListScreen";
+import { Provider } from "react-redux";
+import { store } from "./Src/Redux/Store/Store";
 
 
 // Color utility
@@ -78,9 +82,10 @@ const MainTabs = () => (
             return <Ionicons name="ellipse" size={30} color={color} />;
         }
       },
+      tabBarHideOnKeyboard: true,
     })}>
     <Tab.Screen name="Calendar" component={SchedulePickUpScreen} />
-    <Tab.Screen name="Cart" component={MyOrdersScreen} />
+    <Tab.Screen name="Cart" component={ManageCloths} />
     <Tab.Screen name="Payments" component={Ratelist} />
     <Tab.Screen name="Profile" component={ProfileScreen} />
   </Tab.Navigator>
@@ -101,8 +106,12 @@ const HomeStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name="MainTabs" component={MainTabs} />
     <Stack.Screen name="ManageCloths" component={ManageCloths} />
+    <Stack.Screen name="UserNotification" component={UserNotification} />
+    <Stack.Screen name="AddCloths" component={AddCloths} />
+    <Stack.Screen name="UserListScreen" component={UserListScreen} />
   </Stack.Navigator>
 );
+
 
 // App
 const App = () => {
@@ -125,26 +134,25 @@ const App = () => {
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={{ flex: 1 }}>
-          <NavigationContainer>
-            <Stack.Navigator screenOptions={{ headerShown: false }}>
-              {isAuthenticated ? (
-                <Stack.Screen name="Home" component={HomeStack} />
-              ) : (
-                <Stack.Screen name="Auth" component={AuthStack} />
-              )}
-            </Stack.Navigator>
-          </NavigationContainer>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+    <>
+          <Provider store={store}>
+       <NavigationContainer>
+      <Stack.Navigator  screenOptions={{ headerShown: false }}>
+        {isAuthenticated ? (
+          <Stack.Screen name="Home" component={HomeStack} />
+        ) : (
+          <Stack.Screen name="Home" component={HomeStack}/>
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
+
+    </Provider>
+      
+    </>
+
+   
   );
+  
 
 };
 

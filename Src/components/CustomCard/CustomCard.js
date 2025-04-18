@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
 const CustomCard = ({
   name,
@@ -8,7 +8,8 @@ const CustomCard = ({
   imageUri,
   avatarWidth = 50,
   avatarHeight = 50,
-  cardWidth = '90%' // New prop for container width
+  cardWidth = '90%',
+  rightIcons = [] // Array of icons to render on the right
 }) => {
   return (
     <View style={[styles.card, { width: cardWidth }]}>
@@ -19,10 +20,20 @@ const CustomCard = ({
           { width: avatarWidth, height: avatarHeight },
         ]}
       />
+
       <View style={styles.details}>
         <Text style={styles.name}>{name}</Text>
         <Text style={styles.subText}>Number of Clothes: {clothCount}</Text>
         <Text style={styles.subText}>{address}</Text>
+      </View>
+
+      {/* Render custom icons passed as props */}
+      <View style={styles.iconWrapper}>
+        {rightIcons.map((icon, index) => (
+          <TouchableOpacity key={index} onPress={icon.onPress} style={styles.iconButton}>
+            {icon.component}
+          </TouchableOpacity>
+        ))}
       </View>
     </View>
   );
@@ -37,7 +48,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 20,
     marginVertical: 10,
-    alignSelf: 'center', // So width is respected
+    alignSelf: 'center',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
@@ -51,17 +62,24 @@ const styles = StyleSheet.create({
   },
   details: {
     marginLeft: 16,
-    flexShrink: 1,
+    flex: 1,
   },
   name: {
     fontSize: 16,
-    fontFamily:"trebuc",
+    fontFamily: 'trebuc',
     color: '#000',
   },
   subText: {
     color: '#888',
     fontSize: 13,
     marginTop: 2,
-    fontFamily:"trebuc",
+    fontFamily: 'trebuc',
+  },
+  iconWrapper: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  iconButton: {
+    paddingHorizontal: 6,
   },
 });

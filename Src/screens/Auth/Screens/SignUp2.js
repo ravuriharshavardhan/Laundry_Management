@@ -17,6 +17,8 @@ import CustomGradientButton from '../../../components/CustomGradientButton/Custo
 import CustomButton from '../../../components/CustomButton/CustomButton';
 import InfoCard from '../../../components/InfoCard/InfoCard';
 import { useNavigation } from '@react-navigation/native';
+import BackgroundCard from '../../../components/BackgroundCard/MainBackGround';
+import TypeABackground from '../../../components/TypeABackground/TypeABackground';
 
 const SignUp2 = () => {
     const [Adresss, setAdresss] = useState('');
@@ -35,12 +37,9 @@ const SignUp2 = () => {
 
     return (
         <ScrollView contentContainerStyle={styles.scrollView}>
-        <CurvedCard height={860}
-  borderRadius={0}
-  curve1={{ c1: 30, c2: 500 }}
-  curve2={{ c1: 35, c2: -180 }}
-  sideShadowColor="rgba(0, 0, 0, 0)"
->
+            <TypeABackground
+
+            >
                 <Image
                     source={require('../../../../assets/Images/LoginImage.png')}
                     resizeMode="contain"
@@ -57,19 +56,23 @@ const SignUp2 = () => {
                     />
 
 
-                    <View style={{ marginVertical: -17 }}>
+                    <View style={{ marginVertical: 7,rowGap:10 }}>
+
 
                         <CustomerInput
+                        backgroundColor={"#fff"}
                             placeholder="Adresss"
                             value={Adresss}
                             onChangeText={setAdresss}
                         />
                         <CustomerInput
+                                         backgroundColor={"#fff"}
                             placeholder="City"
                             value={City}
                             onChangeText={setCity}
                         />
                         <CustomerInput
+                                         backgroundColor={"#fff"}
                             placeholder="Locality"
                             value={Locality}
                             onChangeText={setLocality}
@@ -97,18 +100,20 @@ const SignUp2 = () => {
 
                     <View style={styles.socialButtons}>
                         <CustomButton
+                            backgroundColor={"#fff"}
                             title="Login with Google"
                             onPress={() => console.log('Pressed')}
                             icon={require('../../../../assets/Images/GoogleLogo.png')}
                         />
                         <CustomButton
+                            backgroundColor={"#fff"}
                             title="Login with Mail"
                             onPress={() => console.log('Pressed')}
                             icon={require('../../../../assets/Images/GmailLogo.png')}
                         />
                     </View>
                 </View>
-            </CurvedCard>
+            </TypeABackground>
         </ScrollView>
     );
 };
@@ -118,7 +123,7 @@ export default SignUp2;
 const styles = StyleSheet.create({
     scrollView: {
         flexGrow: 1,
-        backgroundColor: '#000',
+        backgroundColor: '#fff',
     },
     image: {
         width: '100%',

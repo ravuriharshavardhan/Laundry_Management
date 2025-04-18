@@ -1,18 +1,21 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, Image, View } from 'react-native';
 
-const CustomButton = ({ title, onPress, icon,backgroundColor, width = 247, height = 36 }) => {
+const CustomButton = ({ title, onPress, icon, backgroundColor, width = 247, height = 36 }) => {
   return (
     <TouchableOpacity
-      style={[styles.button, { width, height },{backgroundColor:backgroundColor}]}
+      style={[styles.button, { width, height, backgroundColor }]}
       onPress={onPress}
     >
-      <View style={styles.content}>
-        {/* Image on the left */}
-        {icon && <Image source={icon} style={styles.icon} />}
-        {/* Text in the center */}
-        <Text style={styles.text}>{title}</Text>
-      </View>
+      {/* Absolute icon container on the left */}
+      {icon && (
+        <View style={styles.iconWrapper}>
+          <Image source={icon} style={styles.icon} />
+        </View>
+      )}
+
+      {/* Centered text */}
+      <Text style={styles.text}>{title}</Text>
     </TouchableOpacity>
   );
 };
@@ -27,20 +30,25 @@ const styles = StyleSheet.create({
     elevation: 4,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  content: {
+    position: 'relative',
     flexDirection: 'row',
+  },
+  iconWrapper: {
+    position: 'absolute',
+    left: 16,
+    justifyContent: 'center',
     alignItems: 'center',
+    height: '100%',
   },
   icon: {
     width: 20,
     height: 20,
-    marginRight: 10, // More appropriate than using `right`
+    resizeMode: 'contain',
   },
   text: {
-    color: '#fff',
+    color: '#000',
     fontSize: 14,
-    fontFamily: "Coda-Regular",
+    fontFamily: "trebuc",
   },
 });
 

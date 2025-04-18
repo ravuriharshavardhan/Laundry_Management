@@ -17,6 +17,12 @@ import CustomGradientButton from '../../../components/CustomGradientButton/Custo
 import CustomButton from '../../../components/CustomButton/CustomButton';
 import InfoCard from '../../../components/InfoCard/InfoCard';
 import { useNavigation } from '@react-navigation/native';
+import BackgroundCard from '../../../components/BackgroundCard/MainBackGround';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
+import TypeABackground from '../../../components/TypeABackground/TypeABackground';
 
 const SignUp= () => {
   const [email, setEmail] = useState('');
@@ -37,11 +43,7 @@ const SignUp= () => {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>
-        <CurvedCard height={860}
-  borderRadius={0}
-  curve1={{ c1: 30, c2: 500 }}
-  curve2={{ c1: 35, c2: -180 }}
-  sideShadowColor="rgba(0, 0, 0, 0)"
+        <TypeABackground
 >
         <Image
           source={require('../../../../assets/Images/LoginImage.png')}
@@ -59,25 +61,31 @@ const SignUp= () => {
           />
 
 
-<View style={{marginVertical:-17}}>
+<View style={{marginVertical:7,rowGap:11}}>
 
 <CustomerInput
+backgroundColor={"#fff"}
             placeholder="Username"
             value={Username}
             onChangeText={setUsername}
           />
           <CustomerInput
+          backgroundColor={"#fff"}
             placeholder="Mobile Number"
             value={MobileNumber}
             onChangeText={setMobileNumber}
           />
           <CustomerInput
+          backgroundColor={"#fff"}
+                      iconColor={"#FFA717"}
             placeholder="Email Address"
             iconName="mail-outline"
             value={email}
             onChangeText={setEmail}
           />
           <CustomerInput
+          backgroundColor={"#fff"}
+                      iconColor={"#FFA717"}
             placeholder="Password"
             iconName="lock-closed-outline"
             value={password}
@@ -118,18 +126,21 @@ const SignUp= () => {
 
           <View style={styles.socialButtons}>
             <CustomButton
+                backgroundColor={"#fff"}
               title="Login with Google"
               onPress={() => console.log('Pressed')}
               icon={require('../../../../assets/Images/GoogleLogo.png')}
             />
+            
             <CustomButton
+                backgroundColor={"#fff"}
               title="Login with Mail"
               onPress={() => console.log('Pressed')}
               icon={require('../../../../assets/Images/GmailLogo.png')}
             />
           </View>
         </View>
-      </CurvedCard>
+      </TypeABackground>
     </ScrollView>
   );
 };
@@ -139,111 +150,64 @@ export default SignUp;
 const styles = StyleSheet.create({
   scrollView: {
     flexGrow: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#fff',
   },
   image: {
     width: '100%',
-    height: 163,
+    height: hp('20%'),
     alignSelf: 'center',
-    marginVertical: 30
-
+    marginVertical: hp('3%'),
   },
   contentContainer: {
-    paddingHorizontal: 20,
-    marginHorizontal: 25
+    paddingHorizontal: wp('5%'),
+    marginHorizontal: wp('6%'),
   },
   title: {
-    fontSize: 22,
+    fontSize: hp('2.5%'),
     color: colors.accent,
-    fontFamily: "Trebuchet-MS-Italic",
+    fontFamily: 'Trebuchet-MS-Italic',
+    marginTop: hp('1%'),
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: hp('1.75%'),
     color: colors.text,
     fontFamily: fonts.primary,
-    lineHeight: 22,
-    marginVertical: 15,
-
+    lineHeight: hp('3%'),
+    marginVertical: hp('2%'),
+    top: hp('0.2%'),
   },
   link: {
     color: colors.secondtext,
-    fontSize: 14
+    fontSize: hp('1.75%'),
   },
   optionsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-   marginTop:16,
+    marginVertical: hp('1.2%'),
   },
   rememberText: {
-    fontSize: 14,
+    fontSize: hp('1.75%'),
     color: colors.text,
-    marginLeft: 5,
+    marginLeft: wp('2%'),
   },
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  loginButton: {
-    backgroundColor: colors.accent,
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 30,
-    flex: 1,
-    marginRight: 8,
-  },
-  loginText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  registerButton: {
-    borderColor: colors.accent,
-    borderWidth: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 30,
-    flex: 1,
-    marginLeft: 8,
-  },
-  registerText: {
-    color: colors.accent,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    marginTop: hp('2.5%'),
   },
   connectText: {
     textAlign: 'center',
-    marginTop: 25,
-    marginBottom: 10,
-    color: "#747070",
+    marginTop: hp('3%'),
+    marginBottom: hp('1.5%'),
+    color: '#747070',
     fontFamily: fonts.secondary,
-
   },
   socialButtons: {
-    gap: 20,
+    marginVertical:wp("1%"),
+    rowGap:wp("7%"),
     alignItems: 'center',
-    justifyContent: "center",
-    marginVertical:20
+    justifyContent: 'center',
+
+
   },
-  socialButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderColor: '#ddd',
-    borderWidth: 1,
-    borderRadius: 30,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    marginBottom: 10,
-    alignContent: "center",
-    justifyContent: "center"
-  },
-  socialText: {
-    marginLeft: 10,
-    color: colors.text,
-  },
-  checkbox: {
- // white background
-    borderRadius: 4,
-    padding: 5,
-  }
 });
