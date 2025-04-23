@@ -60,7 +60,7 @@ const AddCloths = () => {
 
   const handleAddCloths = useCallback(() => {
     if (!clothName || !clothWeight || !clothType || !numberOfPieces) {
-      alert('Please fill all the fields.');
+      Alert.alert('Validation Error', 'Please fill all the fields.');
       return;
     }
   
@@ -77,25 +77,30 @@ const AddCloths = () => {
       id: Date.now(),
       name: clothName,
       weight: clothWeight,
-      totalPrice: totalPrice, // calculated price
+      totalPrice: totalPrice, 
       type: clothType,
-      coupon: couponCode || null,
       pieces: pieces,
     };
   
+    console.log('🧺 New Cloth Added:', newCloth); // Debug log
+  
     dispatch(addCloth(newCloth));
   
-    // axios.post('https://your-api-url.com/api/cloths', newCloth)
-    //   .then(res => {
-    //     console.log('Sent to server:', res.data);
-    //   })
-    //   .catch(err => {
-    //     console.error('Axios error:', err);
-    //   });
+    // Uncomment if you want to send it to the server
+    /*
+    axios.post('http://192.168.1.6:3000/api/orders/create-order', newCloth)
+      .then(res => {
+        console.log('📤 Sent to server:', res.data);
+      })
+      .catch(err => {
+        console.error('❌ Axios error:', err);
+      });
+    */
   
     Alert.alert('Cloth Added!', `You have added ${clothName} - ₹${totalPrice}`);
     navigation.goBack();
-  }, [clothName, clothWeight, clothType, numberOfPieces, couponCode, dispatch, navigation]);
+  }, [clothName, clothWeight, clothType, numberOfPieces, dispatch, navigation]);
+  
   
 
   return (
@@ -186,13 +191,13 @@ const AddCloths = () => {
                   onChange={item => setClothType(item.value)}
                 />
               </View>
-
+{/* 
               <CustomerInputB
                 placeholder={'Enter Coupon (Optional)'}
                 width={W(290)}
                 value={couponCode}
                 onChangeText={setCouponCode}
-              />
+              /> */}
 
               {/* Button */}
               <View style={{ marginTop: H(50) }}>

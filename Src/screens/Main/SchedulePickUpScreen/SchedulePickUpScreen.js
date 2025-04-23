@@ -21,6 +21,7 @@ import CustomButton from '../../../components/CustomButton/CustomButton';
 import { setAddress, setPickupDate, setPickupTime } from '../../../Redux/Slice/AddClothSlice';
 import ImageSlider from '../../../ImageSlider/ImageSlider';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SchedulePickUpScreen = () => {
   const navigation = useNavigation();
@@ -47,7 +48,7 @@ const SchedulePickUpScreen = () => {
       pickupDate,
       pickupTime,
       cloths,
-      coupon
+  
     };
   
     // Validate inputs before making the request
@@ -64,13 +65,18 @@ const SchedulePickUpScreen = () => {
     console.log('🧺 Order Summary:', orderData);
   
     try {
-      // Making the API request to create the order
-      const response = await axios.post('http://192.168.1.6:3000/api/orders/create-order', orderData);
+      const token = await AsyncStorage.getItem('userToken'); 
+      const response = await axios.post('http://192.168.1.6:3000/api/orders/create-order', orderData ,{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
   
       if (response.status === 201) {
         // If the order is created successfully, navigate to 'OrderSummary'
         console.log('Order created successfully:', response.data);
-        navigation.navigate('OrderSummary', { order: response.data });
+        Alert.alert('Order created successfully')
+        // navigation.navigate('OrderSummary', { order: response.data });
       } else {
         // Handle unsuccessful response
         console.error('Failed to create order:', response.data);

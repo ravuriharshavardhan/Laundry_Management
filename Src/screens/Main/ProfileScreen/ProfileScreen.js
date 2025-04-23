@@ -10,49 +10,58 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useSelector } from 'react-redux';  // Import useSelector to access Redux state
+import { useSelector, useDispatch } from 'react-redux'; // Import useSelector to access Redux state
 
 import fonts from '../../../utils/fonts';
 import TypeBBackground from '../../../components/BackgroundCard/TypeBBackground/TypeBBackground';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
   const [fullName, setFullName] = useState("");  // Correct state initialization
-  const [email, setEmail] = useState("");        // Correct state initialization
+  const [email, setEmail] = useState(""); 
+  
+  const dispatch = useDispatch();// Correct state initialization
 
-  const token = useSelector((state) => state.auth.token);  // Access token from Redux store
+ // Access token from Redux store
 
   // Fetch user profile data using the token
   const fetchUserProfile = async () => {
     try {
+      const token = await AsyncStorage.getItem('userToken'); 
+      
+      console.log("Token:",token);
+      // Get token FIRST
+  
       if (!token) {
-        console.log('No token found');
-        return;  // Handle case where no token is found
+        console.log('❌ No token found');
+        return; 
       }
-
+  
       const response = await axios.get('http://192.168.1.6:3000/api/Auth/user/profile', {
         headers: {
-          'Authorization': `Bearer ${token}`,  // Adding Bearer token to the request header
+          'Authorization': `Bearer ${token}`,  // Add token to Authorization header
         },
       });
-
-      console.log('Full response data:', response.data);  // Log the full response for debugging
-
-      // Check if the response contains user data
+  
+      console.log('✅ Full response data:', response.data);  // Full response
+  
+      // Set user details if available
       if (response?.data?.fullName && response?.data?.email) {
-        setFullName(response.data.fullName);  // Set full name from response
-        setEmail(response.data.email);        // Set email from response
+        setFullName(response.data.fullName);
+        setEmail(response.data.email);
       } else {
-        console.log('User data not available');
+        console.log('⚠️ User data not available in response');
       }
     } catch (error) {
-      console.error('Error fetching profile:', error);  // Log any error encountered
+      console.error('❌ Error fetching profile:', error);
     } finally {
-      setLoading(false);  // Set loading to false once the request is done
+      setLoading(false);
     }
   };
+  
 
   const menuItems = [
     { label: 'My Bookings', icon: 'bell-outline', screen: 'MyBookings' },
@@ -60,23 +69,29 @@ const ProfileScreen = () => {
     { label: 'Coupons & Referrals', icon: 'ticket-percent-outline', screen: 'Coupons' },
     { label: 'Complaints', icon: 'message-outline', screen: 'UserComplaint' },
     { label: 'FAQs & Contact Us', icon: 'help-circle-outline', screen: 'Support' },
-    { label: 'Logout', icon: 'logout', screen: 'Logout' },
+    { label: 'Logout', icon: 'logout', screen: 'Login' },
   ];
 
   
   useEffect(() => {
     fetchUserProfile();  // Fetch user profile when the component mounts
-  }, [token]);  // Trigger fetch if the token is updated
+  }, []);  // Trigger fetch if the token is updated
 
-  const handleNavigation = (screen) => {
+  const handleNavigation = async (screen) => {
     if (screen === 'Logout') {
       console.log('Logging out...');
-      // Handle logout functionality here
+  
+      try {
+        await AsyncStorage.removeItem('userToken'); // Remove stored token
+        dispatch(logout()); // Reset auth state
+        navigation.replace('Login'); // Navigate to Login screen
+      } catch (error) {
+        console.error('Error during logout:', error);
+      }
     } else {
       navigation.navigate(screen); // Navigate to the selected screen
     }
   };
-
   if (loading) {
     return (
       <View style={styles.loadingContainer}>

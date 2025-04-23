@@ -50,26 +50,34 @@ const Login = () => {
     setLoading(true);
     try {
       const payload = { email, password };
-      console.log('Attempting to login with credentials:', payload);  // Log the login attempt
-
+      console.log('Attempting to login with credentials:', payload);
+  
       const result = await loginUser(payload);
-      console.log('Login result received:', result);  // Log the result returned by API
-
+      console.log('Login result received:', result);
+  
       if (result?.token) {
-        console.log('Login successful, storing token:', result.token);  // Log successful login and token
-        await AsyncStorage.setItem('userToken', result.token);  // Store token in AsyncStorage
-        dispatch(loginSuccess({ token: result.token, user: result.user }));  // Dispatch login success
-        navigation.replace('MainTabs');  // Navigate to MainTabs screen after successful login
-        console.log('Navigation to MainTabs successful');
+        console.log('Login successful, storing token:', result.token);
+        await AsyncStorage.setItem('userToken', result.token);
+        dispatch(loginSuccess({ token: result.token, user: result.user }));
+  
+        // Check specific credentials and navigate accordingly
+        if (email === '99210041731@klu.ac.in' && password === 'Qazxcqazxc@01') {
+          navigation.replace('UsersListScreen');  // Navigate to Delivery screen
+          console.log('Navigating to Delivery screen');
+        } else {
+          navigation.replace('MainTabs');  // Default navigation
+          console.log('Navigating to MainTabs screen');
+        }
       } else {
         console.log('Login failed, no token received.');
       }
     } catch (error) {
-      console.error('Login Error:', error);  // Log any errors during login
+      console.error('Login Error:', error);
     } finally {
-      setLoading(false);  // Set loading to false after login attempt
+      setLoading(false);
     }
   }, [email, password, dispatch, navigation]);
+  
 
   const handleRegister = useCallback(() => {
     console.log('Navigating to Signup screen...');

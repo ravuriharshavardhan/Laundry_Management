@@ -31,6 +31,7 @@ import AddCloths from "./Src/screens/Main/ManageCloths/AddCloths";
 import UserListScreen from "./Src/screens/Admin/UsersList/UsersListScreen";
 import RatelistInfo from "./Src/screens/Main/RatelistScreen/RatelistInfo";
 import UserComplaint from "./Src/screens/Main/UserComplaint/UserComplaint";
+import UsersListScreen from "./Src/screens/Admin/UsersList/UsersListScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -95,6 +96,8 @@ const AuthStack = () => (
     <Stack.Screen name="Login" component={Login} />
     <Stack.Screen name="Signup" component={SignUp} />
     <Stack.Screen name="SignUp2" component={SignUp2} />
+    <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+    <Stack.Screen name="UsersListScreen" component={UsersListScreen} />
   </Stack.Navigator>
 );
 
@@ -107,16 +110,30 @@ const HomeStack = () => (
     <Stack.Screen name="AddCloths" component={AddCloths} />
     <Stack.Screen name="UserListScreen" component={UserListScreen} />
     <Stack.Screen name="RateListDetail" component={RatelistInfo} />
+    <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+    <Stack.Screen name="Login" component={Login} />
+    <Stack.Screen name="Signup" component={SignUp} />
+    <Stack.Screen name="UsersListScreen" component={UsersListScreen} />
+
   </Stack.Navigator>
 );
 
 
-const AppNavigation = () => {
 
-  const { isAuthenticated } = useSelector((state) => state.auth);
+const DeliveryStack = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="UsersListScreen" component={UsersListScreen} />
+    <Stack.Screen name="Login" component={Login} />
+    {/* Add more delivery-specific screens here if needed */}
+  </Stack.Navigator>
+);
+
+
+
+const AppNavigation = () => {
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   if (isAuthenticated === null) {
-   
     return (
       <View style={styles.screen}>
         <ActivityIndicator size="large" />
@@ -124,11 +141,17 @@ const AppNavigation = () => {
     );
   }
 
+  const isDelivery = user?.email === "99210041731@klu.ac.in" && user?.role === "Delivery";
+
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
-          <Stack.Screen name="Home" component={HomeStack} />
+          isDelivery ? (
+            <Stack.Screen name="Delivery" component={DeliveryStack} />
+          ) : (
+            <Stack.Screen name="Home" component={HomeStack} />
+          )
         ) : (
           <Stack.Screen name="Auth" component={AuthStack} />
         )}
@@ -136,6 +159,7 @@ const AppNavigation = () => {
     </NavigationContainer>
   );
 };
+
 
 
 
