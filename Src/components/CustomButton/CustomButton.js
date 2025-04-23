@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, Image, View } from 'react-native';
 
-const CustomButton = ({ title, onPress, icon, backgroundColor, width = 247, height = 36 }) => {
+const CustomButton = ({ title, onPress, icon, backgroundColor, width = 247, height = 36  ,color}) => {
   return (
     <TouchableOpacity
       style={[styles.button, { width, height, backgroundColor }]}
@@ -15,7 +15,7 @@ const CustomButton = ({ title, onPress, icon, backgroundColor, width = 247, heig
       )}
 
       {/* Centered text */}
-      <Text style={styles.text}>{title}</Text>
+      <Text style={[styles.text,{color:color}]}>{title}</Text>
     </TouchableOpacity>
   );
 };

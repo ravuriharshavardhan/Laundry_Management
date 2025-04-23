@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import React, { useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomerInput from '../../../components/CustomInput/CustomInputA';
@@ -55,27 +55,52 @@ const RatelistScreen = () => {
     <LinearGradient colors={['#fff', '#fff']} start={{ x: 1, y: 0 }} end={{ x: 0, y: 0 }} style={{ flex: 1 }}>
       <ImageSlider />
 
-      <MainBackGround>
-        <View style={styles.cardContainer}>
-          <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={true}>
-            <View style={{ marginHorizontal: 30 }}>
-              <Text style={styles.title}>Rate List</Text>
+      {/* Conditionally render background based on platform */}
+      {Platform.OS === 'ios' ? (
+        <TypeBBackground>
+          <View style={styles.cardContainer}>
+            <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={true}>
+              <View style={{ marginHorizontal: 30 }}>
+                <Text style={styles.title}>Rate List</Text>
 
-              {renderServiceGroup(
-                'Dry Cleaning',
-                ['Dry Clean', 'Organic Dry Clean', 'Jacket Shoe and Bag'],
-                'DryCleaning'
-              )}
+                {renderServiceGroup(
+                  'Dry Cleaning',
+                  ['Dry Clean', 'Organic Dry Clean', 'Jacket Shoe and Bag'],
+                  'DryCleaning'
+                )}
 
-              {renderServiceGroup(
-                'Washing Services',
-                ['Wash & Iron', 'Wash & Fold', 'Specialized'],
-                'WashingServices'
-              )}
-            </View>
-          </ScrollView>
-        </View>
-      </MainBackGround>
+                {renderServiceGroup(
+                  'Washing Services',
+                  ['Wash & Iron', 'Wash & Fold', 'Specialized'],
+                  'WashingServices'
+                )}
+              </View>
+            </ScrollView>
+          </View>
+        </TypeBBackground>
+      ) : (
+        <>
+          <View style={styles.cardContainer}>
+            <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={true}>
+              <View style={{ marginHorizontal: 30 }}>
+                <Text style={styles.title}>Rate List</Text>
+
+                {renderServiceGroup(
+                  'Dry Cleaning',
+                  ['Dry Clean', 'Organic Dry Clean', 'Jacket Shoe and Bag'],
+                  'DryCleaning'
+                )}
+
+                {renderServiceGroup(
+                  'Washing Services',
+                  ['Wash & Iron', 'Wash & Fold', 'Specialized'],
+                  'WashingServices'
+                )}
+              </View>
+            </ScrollView>
+          </View>
+        </>
+      )}
     </LinearGradient>
   );
 };

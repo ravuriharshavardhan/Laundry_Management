@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, FlatList, TextInput } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TextInput, Platform } from 'react-native';
 import React, { useState, useMemo } from 'react';
 import TypeBBackground from '../../../components/BackgroundCard/TypeBBackground/TypeBBackground';
 import fonts from '../../../utils/fonts';
@@ -42,41 +42,61 @@ const RatelistInfo = () => {
   );
 
   return (
-    <TypeBBackground>
+    <View style={{ flex: 1 }}>
+      {Platform.OS === 'ios' ? (
+        <TypeBBackground>
+          <View style={{ marginTop: H(90), alignItems: 'center' }}>
+            <CustomSearch
+              width={W(340)}
+              value={search}
+              backgroundColor={"#E7E7E7"}
+              onChangeText={setSearch}
+            />
 
+            <View style={styles.tableHeader}>
+              <Text style={styles.headerText}>Item</Text>
+              <Text style={styles.headerText}>Rate</Text>
+              <Text style={styles.headerText}>Discount</Text>
+            </View>
 
-      <View  style={{marginTop:H(90),alignItems:"center"}}>
-      <CustomSearch
-      
-      width={W(340)}
-        value={search}
-        backgroundColor={"#E7E7E7"}
-        onChangeText={setSearch}
-      />
+            <Text style={styles.header}>Daily wear</Text>
 
-      <View style={styles.tableHeader}>
-        <Text style={styles.headerText}>Item</Text>
-        <Text style={styles.headerText}>Rate</Text>
-        <Text style={styles.headerText}>Discount</Text>
-      </View>
+            <FlatList
+              data={filteredItems}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={renderItem}
+              contentContainerStyle={{ paddingBottom: 50 }}
+              removeClippedSubviews={false}
+            />
+          </View>
+        </TypeBBackground>
+      ) : (
+        <View style={{ marginTop: H(90), alignItems: 'center' }}>
+          <CustomSearch
+            width={W(340)}
+            value={search}
+            backgroundColor={"#E7E7E7"}
+            onChangeText={setSearch}
+          />
 
-      <Text style={styles.header}>Daily wear</Text>
+          <View style={styles.tableHeader}>
+            <Text style={styles.headerText}>Item</Text>
+            <Text style={styles.headerText}>Rate</Text>
+            <Text style={styles.headerText}>Discount</Text>
+          </View>
 
-      <FlatList
-        data={filteredItems}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 50 }}
-        removeClippedSubviews={false}
-      />
+          <Text style={styles.header}>Daily wear</Text>
 
-      </View>
-
-
-
-     
-    </TypeBBackground>
-
+          <FlatList
+            data={filteredItems}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={renderItem}
+            contentContainerStyle={{ paddingBottom: 50 }}
+            removeClippedSubviews={false}
+          />
+        </View>
+      )}
+    </View>
   );
 };
 
@@ -93,8 +113,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     color: '#FFA717',
     marginBottom: 20,
-    fontFamily:fonts.HomeLabel
-
+    fontFamily: fonts.HomeLabel,
   },
   searchInput: {
     height: 40,
@@ -106,21 +125,18 @@ const styles = StyleSheet.create({
   },
   tableHeader: {
     flexDirection: 'row',
-    columnGap:20,
-
+    columnGap: 20,
     paddingBottom: 10,
     borderBottomWidth: 1,
     borderColor: '#FFA717',
-  marginVertical:20,
-  width:W(300)
+    marginVertical: 20,
+    width: W(300),
   },
   headerText: {
-
     fontSize: 16,
     color: '#333',
     width: '33%',
-    fontFamily:"trebuc"
-
+    fontFamily: "trebuc",
   },
   itemRow: {
     flexDirection: 'row',

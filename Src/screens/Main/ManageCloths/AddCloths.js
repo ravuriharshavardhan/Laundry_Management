@@ -6,6 +6,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  TouchableOpacity,
 } from 'react-native';
 import React, { useState, useCallback } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
@@ -20,6 +21,9 @@ import TypeBBackground from '../../../components/BackgroundCard/TypeBBackground/
 import fonts from '../../../utils/fonts';
 import { F, H, W } from '../../../utils/Dimensions';
 import { addCloth } from '../../../Redux/Slice/AddClothSlice';
+import AndroidCustomInput from '../../../components/Android/AndroidCustomInput/AndroidCustomInput';
+import AndroidCustomDropdown from '../../../components/Android/AndroidCustomDropdown/AndroidCustomDropdown';
+import Icon from 'react-native-vector-icons/MaterialIcons';  // For FAB icon
 
 const AddCloths = () => {
   const navigation = useNavigation();
@@ -39,18 +43,23 @@ const AddCloths = () => {
     { name: 'Trousers', rate: 100, discount: 80 },
     { name: 'Jeans', rate: 120, discount: 100 },
   ];
-
-  const clothDropdownItems = [...new Set(itemsData.map(i => i.name))].map(name => ({
-    label: name,
-    value: name,
+  
+  // Extract unique cloth names
+  const clothDropdownItems = [
+    ...new Map(itemsData.map(i => [i.name, i])).values(),
+  ].map(item => ({
+    label: item.name,
+    value: item.name,
   }));
+  
+  console.log(clothDropdownItems);
+  
 
   const typeData = [
     { label: 'Wash & Steam Iron', value: 'Wash & Steam Iron' },
     { label: 'Wash & Fold', value: 'Wash & Fold' },
     { label: 'Shoe Cleaning', value: 'Shoe Cleaning' },
     { label: 'Home Cleaning', value: 'Home Cleaning' },
-    { label: 'Piece', value: 'Piece' },
   ];
 
   const pieceCountData = Array.from({ length: 20 }, (_, i) => ({
@@ -101,7 +110,6 @@ const AddCloths = () => {
     navigation.goBack();
   }, [clothName, clothWeight, clothType, numberOfPieces, dispatch, navigation]);
   
-  
 
   return (
     <LinearGradient colors={['#fff', '#fff']} style={{ flex: 1 }}>
@@ -112,66 +120,92 @@ const AddCloths = () => {
         >
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            style={{ marginHorizontal: W(30), marginTop: H(160) }}
+            style={{ marginHorizontal: W(30), marginVertical:H(35) }}
           >
             <Text style={styles.headerText}>Cloth Information</Text>
 
             <View style={styles.formContainer}>
               {/* Cloth Name Dropdown */}
               <View style={styles.dropdownWrapper}>
-                <Dropdown
-                  style={styles.dropdown}
-                  placeholderStyle={styles.placeholderStyle}
-                  selectedTextStyle={styles.selectedTextStyle}
-                  containerStyle={styles.dropdownContainer}
-                  data={clothDropdownItems}
-                  maxHeight={H(200)}
-                  labelField="label"
-                  valueField="value"
-                  placeholder="Select Cloth Name"
-                  value={clothName}
-                  showsVerticalScrollIndicator
-                  onChange={item => setClothName(item.value)}
-                />
+                {
+                  Platform.OS === 'ios' ? (
+                    <Dropdown
+                      style={styles.dropdown}
+                      placeholderStyle={styles.placeholderStyle}
+                      selectedTextStyle={styles.selectedTextStyle}
+                      containerStyle={styles.dropdownContainer}
+                      data={clothDropdownItems}
+                      maxHeight={H(200)}
+                      labelField="label"
+                      valueField="value"
+                      placeholder="Select Cloth Name"
+                      value={clothName}
+                      showsVerticalScrollIndicator
+                      onChange={item => setClothName(item.value)}
+                    />
+                  ) : (
+                    <AndroidCustomDropdown
+                      label="Select Cloth Name"
+                      value={clothName}
+                      onChange={setClothName}  // Ensure the value is updated in the parent component
+                      data={clothDropdownItems}
+                      placeholder="Select Cloth"
+                      editable={true}
+                    />
+                  )
+                }
               </View>
 
-              {/* Cloth Weight */}
-              <CustomerInputB
-                placeholder={'Kgs'}
-                width={W(290)}
-                keyboardType="numeric"
-                value={clothWeight}
-                onChangeText={setClothWeight}
-              />
+              {/* Weight Input */}
+              {
+                Platform.OS === 'ios' ? (
+                  <CustomerInputB
+                    placeholder={'Kgs'}
+                    width={W(290)}
+                    keyboardType="numeric"
+                    value={clothWeight}
+                    onChangeText={setClothWeight}
+                  />
+                ) : (
+                  <AndroidCustomInput
+                    label="Weight of the cloth"
+                    placeholder={'Kgs'}
+                    keyboardType="numeric"
+                    value={clothWeight}
+                    onChangeText={setClothWeight}
+                  />
+                )
+              }
 
-              {/* Price */}
-              <CustomerInputB
-                placeholder={'Enter Price Per Unit'}
-                width={W(290)}
-                keyboardType="numeric"
-                value={clothPrice}
-                onChangeText={setClothPrice}
-              />
-
- 
-            
-
-  
+              {/* Piece Count Dropdown */}
               <View style={styles.dropdownWrapper}>
-                <Dropdown
-                  style={styles.dropdown}
-                  placeholderStyle={styles.placeholderStyle}
-                  selectedTextStyle={styles.selectedTextStyle}
-                  containerStyle={styles.dropdownContainer}
-                  data={pieceCountData}
-                  maxHeight={H(200)}
-                  labelField="label"
-                  valueField="value"
-                  placeholder="Select Number of Pieces"
-                  value={numberOfPieces}
-                  showsVerticalScrollIndicator
-                  onChange={item => setNumberOfPieces(item.value)}
-                />
+                {
+                  Platform.OS === "ios" ? (
+                    <Dropdown
+                      style={styles.dropdown}
+                      placeholderStyle={styles.placeholderStyle}
+                      selectedTextStyle={styles.selectedTextStyle}
+                      containerStyle={styles.dropdownContainer}
+                      data={pieceCountData}
+                      maxHeight={H(200)}
+                      labelField="label"
+                      valueField="value"
+                      placeholder="Select Number of Pieces"
+                      value={numberOfPieces}
+                      showsVerticalScrollIndicator
+                      onChange={item => setNumberOfPieces(item.value)}
+                    />
+                  ) : (
+                    <AndroidCustomDropdown
+                      label="Select Number of Pieces"
+                      value={numberOfPieces}
+                      onChange={setNumberOfPieces}
+                      data={pieceCountData}
+                      placeholder="Select Number of Pieces"
+                      editable={true}
+                    />
+                  )
+                }
               </View>
 
               {/* Cloth Type Dropdown */}
@@ -191,15 +225,8 @@ const AddCloths = () => {
                   onChange={item => setClothType(item.value)}
                 />
               </View>
-{/* 
-              <CustomerInputB
-                placeholder={'Enter Coupon (Optional)'}
-                width={W(290)}
-                value={couponCode}
-                onChangeText={setCouponCode}
-              /> */}
 
-              {/* Button */}
+              {/* Add Cloth Button */}
               <View style={{ marginTop: H(50) }}>
                 <CustomButton
                   width={W(290)}
@@ -212,6 +239,15 @@ const AddCloths = () => {
             </View>
           </KeyboardAvoidingView>
         </ScrollView>
+        
+        {/* FAB Button */}
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => Alert.alert('FAB Pressed!')}
+        >
+          <Icon name="add" size={30} color="#fff" />
+        </TouchableOpacity>
+
       </TypeBBackground>
     </LinearGradient>
   );
@@ -230,8 +266,8 @@ const styles = StyleSheet.create({
   formContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: -H(20),
-    rowGap:H(10)
+    rowGap: H(10),
+    marginVertical: H(10),
   },
   dropdownWrapper: {
     width: W(320),
@@ -261,4 +297,18 @@ const styles = StyleSheet.create({
     borderRadius: W(8),
     bottom: H(85),
   },
+  fab: {
+    position: 'absolute',
+    bottom: 30,
+    right: 30,
+    width: 60,
+    height: 60,
+    backgroundColor: '#F7941E',
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    zIndex: 200, // Ensure it's above other components
+  },
 });
+

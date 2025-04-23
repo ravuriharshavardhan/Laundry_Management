@@ -13,9 +13,10 @@ const TypeABackground = ({ children }) => {
         style={[
           styles.image,
           {
-            width: SCREEN_WIDTH * 0.5,
+            width: SCREEN_WIDTH * 0.7,
             height: SCREEN_HEIGHT * 1.05,
             left: 0,
+            bottom:SCREEN_HEIGHT * 0.0001
           },
         ]}
       />
@@ -27,9 +28,10 @@ const TypeABackground = ({ children }) => {
         style={[
           styles.image,
           {
-            width: SCREEN_WIDTH * 0.5,
+            width: SCREEN_WIDTH * 0.6,
             height: SCREEN_HEIGHT * 1.05,
-            left: SCREEN_WIDTH * 0.5,
+            left: SCREEN_WIDTH * 0.40,
+            bottom:SCREEN_HEIGHT * 0.0001
           },
         ]}
       />

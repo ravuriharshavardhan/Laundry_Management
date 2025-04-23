@@ -51,7 +51,7 @@ const CustomerInput = ({
         <Ionicons
           name={iconName}
           size={20}
-          color={iconColor || (disabled ? '#aaa' : '#C4C4C4')}
+          color={iconColor || (disabled ? '#5F6368' : '#C4C4C4')}
           style={styles.icon}
         />
       ) : null}

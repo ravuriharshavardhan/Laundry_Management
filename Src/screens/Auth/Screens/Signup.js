@@ -143,7 +143,7 @@ const SignUp = () => {
             />
           </View>
 
-          <View style={styles.optionsRow}>
+          {/* <View style={styles.optionsRow}>
             <CheckBox
               style={styles.checkbox}
               value={remember}
@@ -157,11 +157,12 @@ const SignUp = () => {
             <TouchableOpacity style={{ marginLeft: 'auto' }}>
               <Text style={styles.link}>Forgot password</Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
 
           <View style={styles.buttonRow}>
-            <View style={{ flex: 1, marginLeft: 8 }}>
+            <View style={{ flex: 1, marginLeft: 8 ,alignItems:"center"}}>
               <CustomGradientButton
+              width={150}
                 title="Register"
                 active={activeTab === 'register'}
                 onPress={handleRegister}

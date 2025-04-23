@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, Alert, Image } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, FlatList, Alert, Image, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import TypeBBackground from '../../../components/BackgroundCard/TypeBBackground/TypeBBackground';
 import fonts from '../../../utils/fonts';
@@ -6,47 +6,63 @@ import Feather from 'react-native-vector-icons/Feather';
 import CustomerInput from '../../../components/CustomInput/CustomInputA';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Config from '../../../Config/Config';
 
-const ManageCloths = () => {
+
+const ManageCloths = ({navigation}) => {
   const [clothsData, setOrders] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true); 
+  const [refreshing, setRefreshing] = useState(false);  // Loading state
 
+  const fetchOrders = async () => {
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      const response = await axios.get(`${Config.API_BASE_URL}/api/orders/delivery/orders`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setOrders(response.data);
+    } catch (error) {
+      console.error('Error fetching delivery orders:', error);
+      Alert.alert('Error', 'Failed to fetch delivery orders.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false); // also reset on manual refresh
+    }
+  };
+  
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const token = await AsyncStorage.getItem('userToken');
-        console.log(token);
-        
-
-        const response = await axios.get('http://192.168.1.6:3000/api/orders/delivery/orders', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        setOrders(response.data);
-      } catch (error) {
-        console.error('Error fetching delivery orders:', error);
-        Alert.alert('Error', 'Failed to fetch delivery orders.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchOrders();
   }, []);
 
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchOrders();
+  };
+
   const filteredCloths = clothsData
-    .flatMap(order => order.cloths) // Flatten the cloths array from each order
+    .flatMap(order => order.cloths)
     .filter(
       (cloth) =>
         cloth.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         cloth.type.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+  const handleEditCloth = (id) => {
+    // Placeholder for navigation/edit logic
+    console.log("Edit cloth with ID:", id);
+  };
+
+  const handleAddCloth = () => {
+    // Placeholder for adding new cloth
+navigation.navigate("Home")
+  };
+
   return (
     <TypeBBackground>
-      <View style={{ marginTop: 80, paddingTop: 50, paddingLeft: 30 }}>
+      <View style={{ paddingTop: 50, paddingLeft: 30 }}>
         <Text style={styles.title}>Add/Manage Cloth</Text>
 
         <View style={styles.inputContainer}>
@@ -61,26 +77,48 @@ const ManageCloths = () => {
           />
         </View>
 
-        <FlatList
-          data={filteredCloths}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={{ paddingBottom: 100, right: 20, marginVertical: 20 }}
-          renderItem={({ item }) => (
-            <View style={styles.clothCard}>
-              <View style={styles.cardContent}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.clothName}>{item.name}</Text>
-                  <Text style={styles.clothDetail}>Rs. {item.totalAmount || item.totalPrice}/piece</Text>
-                  <Text style={styles.clothDetail}>Under: {item.type}</Text>
+        {loading ? (
+          <ActivityIndicator size="large" color="#F7941E" style={{ marginTop: 40 }} />
+        ) : (
+          <FlatList
+            data={filteredCloths}
+            keyExtractor={(item) => item.id.toString()}
+            refreshing={refreshing}           // <-- pulls in refresh state
+            onRefresh={handleRefresh} 
+            contentContainerStyle={{ paddingBottom: 100, right: 20, marginVertical: 20 }}
+            renderItem={({ item }) => (
+              <View style={styles.clothCard}>
+                <View style={styles.cardContent}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.clothName}>{item.name}</Text>
+                    <Text style={styles.clothDetail}>Rs. {item.totalAmount || item.totalPrice}/piece</Text>
+                    <Text style={styles.clothDetail}>Under: {item.type}</Text>
+                  </View>
+
+                  {/* Separator Line + Edit Icon */}
+                  <View style={styles.editSection}>
+                    <View style={styles.separator} />
+                    <TouchableOpacity onPress={() => handleEditCloth(item.id)} style={styles.iconContainer}>
+                      <Image
+                        style={{ height: 28, width: 28 }}
+                        source={require('../../../../assets/Images/EditIcon.png')}
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
-                <TouchableOpacity onPress={() => handleEditCloth(item.id)} style={styles.iconContainer}>
-                  <Image style={{ height: 28, width: 28 }} source={require('../../../../assets/Images/EditIcon.png')} />
-                </TouchableOpacity>
               </View>
-            </View>
-          )}
-        />
+            )}
+          />
+        )}
       </View>
+
+      {/* FAB Button */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={handleAddCloth} // Call the function to add a cloth
+      >
+       <Image source={require('../../../../assets/Images/FABIcon.png')}/>
+      </TouchableOpacity>
     </TypeBBackground>
   );
 };
@@ -138,12 +176,33 @@ const styles = StyleSheet.create({
     color: '#0077cc',
     fontFamily: "VarelaRound-Regular",
   },
-  iconContainer: {
+  editSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  separator: {
+    width: 3,
+    height: 60,
     backgroundColor: '#F7941E',
+    marginRight: 10,
+  },
+  iconContainer: {
     borderRadius: 8,
     padding: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 10,
+  },
+  // FAB Styles
+  fab: {
+    position: 'absolute',
+    bottom: 160,
+    right: 30,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    zIndex: 1000, // Ensure it's above other components
   },
 });

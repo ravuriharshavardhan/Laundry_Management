@@ -25,7 +25,7 @@ import {
             <TypeBBackground>
               <View style={styles.container}>
 
-                <Text style={{fontFamily:"VarelaRound-Regular", fontSize:18,marginVertical:10}}>User Notification</Text>
+                <Text style={{fontFamily:"VarelaRound-Regular", fontSize:18,marginVertical:10}}>Complaints</Text>
 
                 <View style={{
   height: 2,
@@ -46,6 +46,7 @@ import {
   
                 <View style={{ alignItems: 'center' }}>
                   <CustomGradientButton
+                  
                     width={114}
                     borderRadius={6}
                     title="Notify"
@@ -65,7 +66,7 @@ import {
     container: {
       padding: 50,
       flex: 1,
-      marginTop:50
+
     },
     input: {
       height: 165,

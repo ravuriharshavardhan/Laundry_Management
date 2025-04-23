@@ -20,9 +20,9 @@ const ResizableImage = ({
 const MainBackGround = ({
   children,
   liftsidesize = widthPercent('-57.5%'),
-  topsidesize = heightPercent('27%'),
+  topsidesize = heightPercent('26.1%'),
   rightslide2size = widthPercent('-59%'),
-  topslide2size = heightPercent('26%'),
+  topslide2size = heightPercent('25.5%'),
   slide1 = widthPercent('170'),
   slide2 = widthPercent('170'),
   resizeMode = 'contain', // ✅ Add comma here
@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
   },
   contentWrapper: {
     flex: 1,
+    zIndex:0
 
   },
 });

@@ -6,16 +6,18 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  Platform, // Import Platform module
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useSelector, useDispatch } from 'react-redux'; // Import useSelector to access Redux state
-
+import { useDispatch } from 'react-redux'; // Import useDispatch to handle logout
 import fonts from '../../../utils/fonts';
 import TypeBBackground from '../../../components/BackgroundCard/TypeBBackground/TypeBBackground';
+import MainBackGround from '../../../components/BackgroundCard/MainBackGround'; // Import MainBackGround
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Config from '../../../Config/Config';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -23,24 +25,22 @@ const ProfileScreen = () => {
   const [fullName, setFullName] = useState("");  // Correct state initialization
   const [email, setEmail] = useState(""); 
   
-  const dispatch = useDispatch();// Correct state initialization
-
- // Access token from Redux store
+  const dispatch = useDispatch();
 
   // Fetch user profile data using the token
   const fetchUserProfile = async () => {
     try {
       const token = await AsyncStorage.getItem('userToken'); 
       
-      console.log("Token:",token);
+      console.log("Token:", token);
+
       // Get token FIRST
-  
       if (!token) {
         console.log('❌ No token found');
         return; 
       }
   
-      const response = await axios.get('http://192.168.1.6:3000/api/Auth/user/profile', {
+      const response = await axios.get(`${Config.API_BASE_URL}/api/Auth/user/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`,  // Add token to Authorization header
         },
@@ -52,6 +52,10 @@ const ProfileScreen = () => {
       if (response?.data?.fullName && response?.data?.email) {
         setFullName(response.data.fullName);
         setEmail(response.data.email);
+
+        // Store full name in AsyncStorage
+        await AsyncStorage.setItem('UserInfo', response.data.fullName);
+        console.log("UserInfo stored in AsyncStorage:", response.data.fullName);
       } else {
         console.log('⚠️ User data not available in response');
       }
@@ -61,7 +65,6 @@ const ProfileScreen = () => {
       setLoading(false);
     }
   };
-  
 
   const menuItems = [
     { label: 'My Bookings', icon: 'bell-outline', screen: 'MyBookings' },
@@ -72,7 +75,6 @@ const ProfileScreen = () => {
     { label: 'Logout', icon: 'logout', screen: 'Login' },
   ];
 
-  
   useEffect(() => {
     fetchUserProfile();  // Fetch user profile when the component mounts
   }, []);  // Trigger fetch if the token is updated
@@ -92,6 +94,7 @@ const ProfileScreen = () => {
       navigation.navigate(screen); // Navigate to the selected screen
     }
   };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -101,62 +104,122 @@ const ProfileScreen = () => {
   }
 
   return (
-    <TypeBBackground>
-      <View style={{ marginHorizontal: 0 }}>
-        <Text
-          style={{
-            fontFamily: fonts.HomeLabel,
-            fontSize: 21,
-            textAlign: 'left',
-            color: '#F7941E',
-            top: 100,
-            paddingLeft: 30,
-          }}
-        >
-          Profile
-        </Text>
+    // Conditionally render background based on platform
+    Platform.OS === 'ios' ? (
+      <TypeBBackground>
+        <View style={{ marginHorizontal: 0 }}>
+          <Text
+            style={{
+              fontFamily: fonts.HomeLabel,
+              fontSize: 21,
+              textAlign: 'left',
+              color: '#F7941E',
+              top: 100,
+              paddingLeft: 30,
+            }}
+          >
+            Profile
+          </Text>
 
-        <View style={{ marginHorizontal: 30, marginTop: 120 }}>
-          {/* User Info Section */}
-          <View style={{ alignItems: 'center', marginBottom: 20 }}>
-            <Image
-              source={{
-                uri: 'https://i.pravatar.cc/150?img=47', // Placeholder profile image
-              }}
-              style={{
-                width: 100,
-                height: 100,
-                borderRadius: 50,
-                marginBottom: 10,
-              }}
-            />
-            <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
-              {fullName || 'Unnamed User'} {/* Display fullName correctly */}
-            </Text>
-            <Text style={{ color: 'gray' }}>
-              {email || 'Email not available'} {/* Display email correctly */}
-            </Text>
-          </View>
-
-          {/* Menu items */}
-          {menuItems.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.menuItem}
-              onPress={() => handleNavigation(item.screen)}
-            >
-              <Icon
-                name={item.icon}
-                size={24}
-                color="#F7941E"
-                style={{ marginRight: 20 }}
+          <View style={{ marginHorizontal: 30, marginTop: 120 }}>
+            {/* User Info Section */}
+            <View style={{ alignItems: 'center', marginBottom: 20 }}>
+              <Image
+                source={{
+                  uri: 'https://i.pravatar.cc/150?img=47', // Placeholder profile image
+                }}
+                style={{
+                  width: 100,
+                  height: 100,
+                  borderRadius: 50,
+                  marginBottom: 10,
+                }}
               />
-              <Text style={styles.menuLabel}>{item.label}</Text>
-            </TouchableOpacity>
-          ))}
+              <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
+                {fullName || 'Unnamed User'} {/* Display fullName correctly */}
+              </Text>
+              <Text style={{ color: 'gray' }}>
+                {email || 'Email not available'} {/* Display email correctly */}
+              </Text>
+            </View>
+
+            {/* Menu items */}
+            {menuItems.map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.menuItem}
+                onPress={() => handleNavigation(item.screen)}
+              >
+                <Icon
+                  name={item.icon}
+                  size={24}
+                  color="#F7941E"
+                  style={{ marginRight: 20 }}
+                />
+                <Text style={styles.menuLabel}>{item.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
-      </View>
-    </TypeBBackground>
+      </TypeBBackground>
+    ) : (
+      <>
+        <View style={{ marginHorizontal: 0 }}>
+          <Text
+            style={{
+              fontFamily: fonts.HomeLabel,
+              fontSize: 21,
+              textAlign: 'left',
+              color: '#F7941E',
+              top: 100,
+              paddingLeft: 30,
+            }}
+          >
+            Profile
+          </Text>
+
+          <View style={{ marginHorizontal: 30, marginTop: 120 }}>
+            {/* User Info Section */}
+            <View style={{ alignItems: 'center', marginBottom: 20 }}>
+              <Image
+                source={{
+                  uri: 'https://i.pravatar.cc/150?img=47', // Placeholder profile image
+                }}
+                style={{
+                  width: 100,
+                  height: 100,
+                  borderRadius: 50,
+                  marginBottom: 10,
+                }}
+              />
+              <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
+                {fullName || 'Unnamed User'} {/* Display fullName correctly */}
+              </Text>
+              <Text style={{ color: 'gray' }}>
+                {email || 'Email not available'} {/* Display email correctly */}
+              </Text>
+            </View>
+
+            {/* Menu items */}
+            {menuItems.map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.menuItem}
+                onPress={() => handleNavigation(item.screen)}
+              >
+                <Icon
+                  name={item.icon}
+                  size={24}
+                  color="#F7941E"
+                  style={{ marginRight: 20 }}
+                />
+                <Text style={styles.menuLabel}>{item.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </>
+    )
   );
 };
 

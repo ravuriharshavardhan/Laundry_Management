@@ -84,9 +84,11 @@ const SignUp2 = () => {
 
                     <View style={styles.buttonRow}>
 
+                        
+
 
                         <CustomGradientButton
-                            width={200}
+                            width={150}
 
                             title="Register"
                             active={activeTab === 'register'}

@@ -22,6 +22,7 @@ import { setAddress, setPickupDate, setPickupTime } from '../../../Redux/Slice/A
 import ImageSlider from '../../../ImageSlider/ImageSlider';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Config from '../../../Config/Config';
 
 const SchedulePickUpScreen = () => {
   const navigation = useNavigation();
@@ -66,7 +67,7 @@ const SchedulePickUpScreen = () => {
   
     try {
       const token = await AsyncStorage.getItem('userToken'); 
-      const response = await axios.post('http://192.168.1.6:3000/api/orders/create-order', orderData ,{
+      const response = await axios.post(`${Config.API_BASE_URL}/api/orders/create-order`, orderData ,{
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -139,7 +140,7 @@ const SchedulePickUpScreen = () => {
                   <CustomerInput
                     backgroundColor="#fff"
                     placeholder="Choose a Day for Pickup"
-                    iconName="calendar-outline"
+                    iconName="caret-down-sharp"
                     width={320}
                     value={pickupDate}
                     disabled={true}
@@ -151,7 +152,7 @@ const SchedulePickUpScreen = () => {
                   <CustomerInput
                     backgroundColor="#fff"
                     placeholder="Choose Preferred Time"
-                    iconName="time-outline"
+                    iconName="caret-down-sharp"
                     width={320}
                     value={pickupTime}
                     disabled={true}
@@ -182,9 +183,11 @@ const SchedulePickUpScreen = () => {
 
                 <View style={{ alignItems: 'center' }}>
                   <CustomButton
+                  color={"#fff"}
                     backgroundColor="#F7A917"
                     height={50}
                     width={200}
+                    
                     title="Place Order"
                     onPress={handlePlaceOrder}
                   />
