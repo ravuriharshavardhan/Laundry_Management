@@ -1,18 +1,13 @@
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Alert, Image } from 'react-native';
 import React, { useCallback, useState } from 'react';
-import LinearGradient from 'react-native-linear-gradient';
-import CurvedCard from '../../../components/CurvedCard/CurvedCard';
-import CustomerInputB from '../../../components/CustomInput/CustomInputB';
-import CustomButton from '../../../components/CustomButton/CustomButton';
 import { useNavigation } from '@react-navigation/native';
-import { Dropdown } from 'react-native-element-dropdown';
-import fonts from '../../../utils/fonts';
-import CustomCard from '../../../components/CustomCard/CustomCard';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-import MainBackGround from '../../../components/BackgroundCard/MainBackGround';
+import CustomCard from '../../../components/CustomCard/CustomCard';
+import fonts from '../../../utils/fonts';
 import TypeBBackground from '../../../components/BackgroundCard/TypeBBackground/TypeBBackground';
 
-const MyOrdersScreen = () => {
+const UserListScreen = () => {
   const navigation = useNavigation();
 
   const [clothType, setClothType] = useState(null);
@@ -20,17 +15,11 @@ const MyOrdersScreen = () => {
   const handleAddCloths = useCallback(() => {
     navigation.navigate("ManageCloths");
   }, [navigation]);
-
-  const data = [
-    { label: 'Wash & Steam Iron', value: 'Wash & Steam Iron' },
-    { label: 'Wash & Fold', value: 'Wash & Fold' },
-    { label: 'Shoe Cleaning', value: 'Shoe Cleaning' },
-    { label: 'Home Cleaning', value: 'Home Cleaning' },
-  ];
-
   return (
     <TypeBBackground>
-       <Text
+
+      <View style={{marginTop:120}} >
+      <Text
               style={{
                 fontFamily: fonts.HomeLabel,
 
@@ -40,29 +29,61 @@ const MyOrdersScreen = () => {
                 color: '#F7941E',
               }}
             >
-              My Orders
+             Users List
             </Text>
 
             <View style={{ justifyContent: 'center', alignItems: 'center', marginVertical: -25 }}>
               <CustomCard
+                 rightIcons={[
+      
+                  {
+                component: <Image style={{height:20,width:20}} source={require('../../../../assets/Images/CallIcon.png')} />,
+                    onPress: () => Alert.alert('Delete Pressed'),
+                  },
+                ]}
+              cardWidth='320'
                 name="Shivi Jain"
                 clothCount={10}
                 address="71-A Surajnagar Ujjain"
                 imageUri="https://i.pravatar.cc/150?img=47"
               />
               <CustomCard
+                 rightIcons={[
+      
+                  {
+                    component: <Image style={{height:20,width:20}} source={require('../../../../assets/Images/CallIcon.png')} />,
+                    onPress: () => Alert.alert('Delete Pressed'),
+                  },
+                ]}
+                    cardWidth='320'
                 name="Shivi Jain"
                 clothCount={10}
                 address="71-A Surajnagar Ujjain"
                 imageUri="https://i.pravatar.cc/150?img=47"
               />
               <CustomCard
+            rightIcons={[
+      
+              {
+                component: <Image style={{height:20,width:20}} source={require('../../../../assets/Images/CallIcon.png')} />,
+                onPress: () => Alert.alert('Delete Pressed'),
+              },
+            ]}
+                    cardWidth='320'
                 name="Shivi Jain"
                 clothCount={10}
                 address="71-A Surajnagar Ujjain"
                 imageUri="https://i.pravatar.cc/150?img=47"
               />
               <CustomCard
+                 rightIcons={[
+      
+                  {
+                component: <Image style={{height:20,width:20}} source={require('../../../../assets/Images/CallIcon.png')} />,
+                    onPress: () => Alert.alert('Delete Pressed'),
+                  },
+                ]}
+                    cardWidth='320'
                 name="Shivi Jain"
                 clothCount={10}
                 address="71-A Surajnagar Ujjain"
@@ -71,12 +92,15 @@ const MyOrdersScreen = () => {
 
             </View>
 
+      </View>
+      
+
 
     </TypeBBackground>
   );
 };
 
-export default MyOrdersScreen;
+export default UserListScreen;
 
 const styles = StyleSheet.create({
   dropdown: {

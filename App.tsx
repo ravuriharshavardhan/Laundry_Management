@@ -1,49 +1,46 @@
-// App.js
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   View,
-  Text,
-  TouchableOpacity,
   StyleSheet,
-  KeyboardAvoidingView,
   Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Provider, useSelector } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { store, persistor } from "./Src/Redux/Store/Store";
+
+// Icons
 import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import Ionicons from "react-native-vector-icons/Ionicons";
+
+// Screens
 import SchedulePickUpScreen from "./Src/screens/Main/SchedulePickUpScreen/SchedulePickUpScreen";
-import MyOrdersScreen from "./Src/screens/Main/MyOrdersScreen/MyOrdersScreen";
+import MyBookingScreen from "./Src/screens/Main/MyBookingScreen/MyBookingScreen";
 import Ratelist from "./Src/screens/Main/RatelistScreen/RatelistScreen";
 import ProfileScreen from "./Src/screens/Main/ProfileScreen/ProfileScreen";
 import SignUp from "./Src/screens/Auth/Screens/Signup";
 import SignUp2 from "./Src/screens/Auth/Screens/SignUp2";
 import Login from "./Src/screens/Auth/Screens/Login";
 import ManageCloths from "./Src/screens/Main/ManageCloths/ManageCloths";
-import UserNotification from "./Src/screens/Main/UserNotification/UserNotification";
 import AddCloths from "./Src/screens/Main/ManageCloths/AddCloths";
-import UserListScreen from "./Src/screens/Main/Admin/UsersList/UsersListScreen";
-import { Provider } from "react-redux";
-import { store } from "./Src/Redux/Store/Store";
+import UserListScreen from "./Src/screens/Admin/UsersList/UsersListScreen";
+import RatelistInfo from "./Src/screens/Main/RatelistScreen/RatelistInfo";
+import UserComplaint from "./Src/screens/Main/UserComplaint/UserComplaint";
 
 
-// Color utility
+const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
+
 const colors = {
   BottomBarColor: "#F49905",
 };
 
-// Stack & Tabs
-const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
 
-// Bottom Tabs
 const MainTabs = () => (
   <Tab.Navigator
     screenOptions={({ route }) => ({
@@ -59,7 +56,7 @@ const MainTabs = () => (
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
-        paddingBottom: 25,
+        paddingBottom: Platform.OS === "ios" ? 10 : 25,
         justifyContent: "center",
         flexDirection: "row",
         alignItems: "center",
@@ -83,7 +80,8 @@ const MainTabs = () => (
         }
       },
       tabBarHideOnKeyboard: true,
-    })}>
+    })}
+  >
     <Tab.Screen name="Calendar" component={SchedulePickUpScreen} />
     <Tab.Screen name="Cart" component={ManageCloths} />
     <Tab.Screen name="Payments" component={Ratelist} />
@@ -91,41 +89,34 @@ const MainTabs = () => (
   </Tab.Navigator>
 );
 
-// Auth stack
+
 const AuthStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name="Login" component={Login} />
     <Stack.Screen name="Signup" component={SignUp} />
     <Stack.Screen name="SignUp2" component={SignUp2} />
-    <Stack.Screen name="MainTabs" component={HomeStack} />
   </Stack.Navigator>
 );
 
-// Home stack (main after auth)
+
 const HomeStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name="MainTabs" component={MainTabs} />
-    <Stack.Screen name="ManageCloths" component={ManageCloths} />
-    <Stack.Screen name="UserNotification" component={UserNotification} />
+    <Stack.Screen name="MyBookings" component={MyBookingScreen} />
+    <Stack.Screen name="UserNotification" component={UserComplaint} />
     <Stack.Screen name="AddCloths" component={AddCloths} />
     <Stack.Screen name="UserListScreen" component={UserListScreen} />
+    <Stack.Screen name="RateListDetail" component={RatelistInfo} />
   </Stack.Navigator>
 );
 
 
-// App
-const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
+const AppNavigation = () => {
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = await AsyncStorage.getItem("userToken");
-      setIsAuthenticated(!!token);
-    };
-    checkAuth();
-  }, []);
+  const { isAuthenticated } = useSelector((state) => state.auth);
 
   if (isAuthenticated === null) {
+   
     return (
       <View style={styles.screen}>
         <ActivityIndicator size="large" />
@@ -134,27 +125,31 @@ const App = () => {
   }
 
   return (
-    <>
-          <Provider store={store}>
-       <NavigationContainer>
-      <Stack.Navigator  screenOptions={{ headerShown: false }}>
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
           <Stack.Screen name="Home" component={HomeStack} />
         ) : (
-          <Stack.Screen name="Home" component={HomeStack}/>
+          <Stack.Screen name="Auth" component={AuthStack} />
         )}
       </Stack.Navigator>
     </NavigationContainer>
-
-    </Provider>
-      
-    </>
-
-   
   );
-  
-
 };
+
+
+
+
+const App = () => {
+  return (
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <AppNavigation />
+      </PersistGate>
+    </Provider>
+  );
+};
+
 
 export default App;
 
@@ -165,18 +160,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#F5F5F5",
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 16,
-  },
-  button: {
-    backgroundColor: "#F49905",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 10,
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-}); 
+});

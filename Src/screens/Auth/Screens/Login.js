@@ -1,17 +1,16 @@
 import {
+  ActivityIndicator,
   Image,
-  ImageBackground,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  Modal,
 } from 'react-native';
-import React, { useCallback, useState } from 'react';
-import CurvedCard from '../../../components/CurvedCard/CurvedCard';
-import colors from '../../../utils/colors';
-import fonts from '../../../utils/fonts';
+import React, { useCallback, useEffect, useState } from 'react';
+import debounce from 'lodash.debounce';
 import CustomerInput from '../../../components/CustomInput/CustomInputA';
 import CheckBox from 'react-native-check-box';
 import CustomGradientButton from '../../../components/CustomGradientButton/CustomGradientButton';
@@ -22,117 +21,168 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import BackgroundCard from '../../../components/BackgroundCard/MainBackGround';
 import TypeABackground from '../../../components/TypeABackground/TypeABackground';
+import { loginUser } from '../../../Apis/loginUser';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch } from 'react-redux';
+import { loginSuccess } from '../../../Redux/Slice/authSlice';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
   const [activeTab, setActiveTab] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
+  const dispatch = useDispatch();
+
+  // Debounced loggers
+  const logEmail = useCallback(debounce((val) => {
+    console.log('Email input changed:', val);
+  }, 300), []);
+
+  const logPassword = useCallback(debounce((val) => {
+    console.log('Password input changed:', val);
+  }, 300), []);
+
+  const handleLogin = useCallback(async () => {
+    setLoading(true);
+    try {
+      const payload = { email, password };
+      console.log('Attempting to login with credentials:', payload);  // Log the login attempt
+
+      const result = await loginUser(payload);
+      console.log('Login result received:', result);  // Log the result returned by API
+
+      if (result?.token) {
+        console.log('Login successful, storing token:', result.token);  // Log successful login and token
+        await AsyncStorage.setItem('userToken', result.token);  // Store token in AsyncStorage
+        dispatch(loginSuccess({ token: result.token, user: result.user }));  // Dispatch login success
+        navigation.replace('MainTabs');  // Navigate to MainTabs screen after successful login
+        console.log('Navigation to MainTabs successful');
+      } else {
+        console.log('Login failed, no token received.');
+      }
+    } catch (error) {
+      console.error('Login Error:', error);  // Log any errors during login
+    } finally {
+      setLoading(false);  // Set loading to false after login attempt
+    }
+  }, [email, password, dispatch, navigation]);
+
   const handleRegister = useCallback(() => {
+    console.log('Navigating to Signup screen...');
     navigation.navigate('Signup');
     setActiveTab('register');
   }, [navigation]);
 
   return (
     <>
-    <StatusBar hidden={true} />
-    <ScrollView contentContainerStyle={styles.scrollView}>
-      <TypeABackground 
-
-      >
-        <Image
-          source={require('../../../../assets/Images/LoginImage.png')}
-          resizeMode="contain"
-          style={styles.image}
-        />
-
-        <View style={styles.contentContainer}>
-          <InfoCard
-            label="Login"
-            subtitle="By signing in you are agreeing"
-            highlight="Terms and Privacy Policy"
+      <StatusBar hidden={true} />
+      <ScrollView contentContainerStyle={styles.scrollView}>
+        <TypeABackground>
+          <Image
+            source={require('../../../../assets/Images/LoginImage.png')}
+            resizeMode="contain"
+            style={styles.image}
           />
-<View style={{rowGap:20}} >
-<CustomerInput
-            iconColor={"#FFA717"}
-            placeholder="Email Address"
-            iconName="mail-outline"
-            value={email}
-            onChangeText={setEmail}
-            backgroundColor={"#fff"}
-          />
-          <CustomerInput
-            iconColor={"#FFA717"}
-            placeholder="Password"
-            iconName="lock-closed-outline"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            backgroundColor={"#fff"}
-          />
-
-</View>
-          
-
-          <View style={styles.optionsRow}>
-            <CheckBox
-              style={styles.checkbox}
-              value={remember}
-              onClick={() => setRemember(!remember)}
-              isChecked={remember}
-              checkBoxColor="#fff"
-              onValueChange={setRemember}
-              tintColors={{ true: '#B4A8A8', false: '#B4A8A8' }}
+          <View style={styles.contentContainer}>
+            <InfoCard
+              label="Login"
+              subtitle="By signing in you are agreeing"
+              highlight="Terms and Privacy Policy"
             />
-            <Text style={styles.rememberText}>Remember password</Text>
-            <TouchableOpacity style={{ marginLeft: 'auto' }}>
-              <Text style={styles.link}>Forgot password</Text>
-            </TouchableOpacity>
-          </View>
 
-          <View style={styles.buttonRow}>
-            <View style={{ flex: 1, marginRight: wp('2%') }}>
-              <CustomGradientButton
-                title="Login"
-                active={activeTab === 'login'}
-                onPress={() => setActiveTab('login')}
+            <View style={{ rowGap: 20 }}>
+              <CustomerInput
+                iconColor={"#FFA717"}
+                placeholder="Email Address"
+                iconName="mail-outline"
+                value={email}
+                onChangeText={(val) => {
+                  console.log('Email changed:', val);  // Log email input
+                  setEmail(val);
+                  logEmail(val);
+                }}
+                backgroundColor={"#fff"}
+              />
+              <CustomerInput
+                iconColor={"#FFA717"}
+                placeholder="Password"
+                iconName="lock-closed-outline"
+                value={password}
+                onChangeText={(val) => {
+                  console.log('Password changed:', val);  // Log password input
+                  setPassword(val);
+                  logPassword(val);
+                }}
+                secureTextEntry
+                backgroundColor={"#fff"}
               />
             </View>
-            <View style={{ flex: 1, marginLeft: wp('2%') }}>
-              <CustomGradientButton
-                title="Register"
-                active={activeTab === 'register'}
-                onPress={handleRegister}
+
+            <View style={styles.optionsRow}>
+              <CheckBox
+                style={styles.checkbox}
+                value={remember}
+                onClick={() => {
+                  console.log('Remember password toggled:', !remember);  // Log toggle action
+                  setRemember(!remember);
+                }}
+                isChecked={remember}
+                checkBoxColor="#fff"
+              />
+              <Text style={styles.rememberText}>Remember password</Text>
+              <TouchableOpacity style={{ marginLeft: 'auto' }}>
+                <Text style={styles.link}>Forgot password</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.buttonRow}>
+              <View style={{ flex: 1, marginRight: wp('2%') }}>
+                <CustomGradientButton
+                  title="Login"
+                  active={activeTab === 'login'}
+                  onPress={handleLogin}
+                />
+              </View>
+              <View style={{ flex: 1, marginLeft: wp('2%') }}>
+                <CustomGradientButton
+                  title="Register"
+                  active={activeTab === 'register'}
+                  onPress={handleRegister}
+                />
+              </View>
+            </View>
+
+            <Text style={styles.connectText}>or connect with</Text>
+
+            <View style={styles.socialButtons}>
+              <CustomButton
+                backgroundColor="#fff"
+                title="Login with Google"
+                onPress={() => console.log('Google Login button pressed')}
+                icon={require('../../../../assets/Images/GoogleLogo.png')}
+              />
+              <CustomButton
+                backgroundColor="#fff"
+                title="Login with Mail"
+                onPress={() => console.log('Mail Login button pressed')}
+                icon={require('../../../../assets/Images/GmailLogo.png')}
               />
             </View>
           </View>
+        </TypeABackground>
+      </ScrollView>
 
-          <Text style={styles.connectText}>or connect with</Text>
-
-          <View style={styles.socialButtons}>
-            <CustomButton
-            
-              backgroundColor="#fff"
-              title="Login with Google"
-              onPress={() => console.log('Pressed')}
-              icon={require('../../../../assets/Images/GoogleLogo.png')}
-            />
-            <CustomButton
-              backgroundColor="#fff"
-              title="Login with Mail"
-              onPress={() => console.log('Pressed')}
-              icon={require('../../../../assets/Images/GmailLogo.png')}
-            />
-          </View>
+      {/* ✅ Loading Modal Overlay */}
+      <Modal transparent={true} visible={loading}>
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#FFA717" />
         </View>
-      </TypeABackground>
-    </ScrollView>
+      </Modal>
     </>
-  
   );
 };
 
@@ -153,22 +203,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp('5%'),
     marginHorizontal: wp('6%'),
   },
-  title: {
-    fontSize: hp('2.5%'),
-    color: colors.accent,
-    fontFamily: 'Trebuchet-MS-Italic',
-    marginTop: hp('1%'),
-  },
-  subtitle: {
-    fontSize: hp('1.75%'),
-    color: colors.text,
-    fontFamily: fonts.primary,
-    lineHeight: hp('3%'),
-    marginVertical: hp('2%'),
-    top: hp('0.2%'),
-  },
   link: {
-    color: colors.secondtext,
+    color: '#888',
     fontSize: hp('1.75%'),
   },
   optionsRow: {
@@ -178,7 +214,7 @@ const styles = StyleSheet.create({
   },
   rememberText: {
     fontSize: hp('1.75%'),
-    color: colors.text,
+    color: '#555',
     marginLeft: wp('2%'),
   },
   buttonRow: {
@@ -191,14 +227,17 @@ const styles = StyleSheet.create({
     marginTop: hp('3%'),
     marginBottom: hp('1.5%'),
     color: '#747070',
-    fontFamily: fonts.secondary,
   },
   socialButtons: {
-    marginVertical:wp("1%"),
-    rowGap:wp("7%"),
+    marginVertical: wp('1%'),
+    rowGap: wp('7%'),
     alignItems: 'center',
     justifyContent: 'center',
-
-
+  },
+  loadingOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

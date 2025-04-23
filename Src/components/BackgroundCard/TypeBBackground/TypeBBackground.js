@@ -14,13 +14,12 @@ const TypeBBackground = ({ children }) => {
           styles.image,
           {
             width: W(188.5),   // Half of 375 design width
-            height: H(852),    // Full design height
-            left: W(1),
+            height: H(872),    // Full design height
+            right: W(189),
           },
         ]}
       />
-
-      {/* Right Side Background */}
+      
       <Image
         resizeMode="stretch"
         source={require('../../../../assets/Images/TypeBBackground1.png')}
@@ -28,7 +27,7 @@ const TypeBBackground = ({ children }) => {
           styles.image,
           {
             width: W(188.5),
-            height: H(852),
+            height: H(872),
             left: W(187.5),
           },
         ]}

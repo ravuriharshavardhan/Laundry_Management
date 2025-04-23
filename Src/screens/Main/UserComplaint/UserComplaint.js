@@ -14,7 +14,7 @@ import {
   import CustomerInputB from '../../../components/CustomInput/CustomInputB'
   import CustomGradientButton from '../../../components/CustomGradientButton/CustomGradientButton'
   
-  const UserNotification = () => {
+  const UserComplaint = () => {
     return (
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -59,7 +59,7 @@ import {
     )
   }
   
-  export default UserNotification
+  export default UserComplaint
   
   const styles = StyleSheet.create({
     container: {
