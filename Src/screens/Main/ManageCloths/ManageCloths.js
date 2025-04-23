@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, FlatList, Image, Alert, ActivityIndicator } from 'react-native';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import CustomCard from '../../../components/CustomCard/CustomCard';
+import { StyleSheet, Text, View, TouchableOpacity, FlatList, Alert, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import TypeBBackground from '../../../components/BackgroundCard/TypeBBackground/TypeBBackground';
 import fonts from '../../../utils/fonts';
+import Feather from 'react-native-vector-icons/Feather';
+import CustomerInput from '../../../components/CustomInput/CustomInputA';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const DeliveryOrdersScreen = () => {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+const ManageCloths = () => {
+  const [clothsData, setOrders] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -35,73 +36,114 @@ const DeliveryOrdersScreen = () => {
     fetchOrders();
   }, []);
 
-  const renderItem = ({ item }) => {
-    const clothCount = item.cloths?.reduce((acc, cloth) => acc + cloth.pieces, 0);
-
-    return (
-      <CustomCard
-        rightIcons={[
-          {
-            component: (
-              <Image
-                style={{ height: 20, width: 20 }}
-                source={require('../../../../assets/Images/CallIcon.png')}
-              />
-            ),
-            onPress: () => Alert.alert(`Call ${item.address}`),
-          },
-        ]}
-        cardWidth="320"
-        name={item.orderId}
-        clothCount={clothCount}
-        address={item.address}
-        imageUri="https://i.pravatar.cc/150?img=68"
-      />
+  const filteredCloths = clothsData
+    .flatMap(order => order.cloths) // Flatten the cloths array from each order
+    .filter(
+      (cloth) =>
+        cloth.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        cloth.type.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  };
-
-  if (loading) {
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#F7941E" />
-      </View>
-    );
-  }
 
   return (
     <TypeBBackground>
-      <View style={{ marginTop: 120 }}>
-        <Text style={styles.title}>Delivery Orders</Text>
+      <View style={{ marginTop: 80, paddingTop: 50, paddingLeft: 30 }}>
+        <Text style={styles.title}>Add/Manage Cloth</Text>
+
+        <View style={styles.inputContainer}>
+          <Feather name="search" size={18} color="#666" style={styles.icon} />
+          <CustomerInput
+            backgroundColor={"#E7E7E7"}
+            height={40}
+            style={styles.textInput}
+            placeholder="Search cloths..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+
         <FlatList
-          data={orders}
-          keyExtractor={(item) => item._id}
-          renderItem={renderItem}
-          contentContainerStyle={styles.listContainer}
+          data={filteredCloths}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={{ paddingBottom: 100, right: 20, marginVertical: 20 }}
+          renderItem={({ item }) => (
+            <View style={styles.clothCard}>
+              <View style={styles.cardContent}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.clothName}>{item.name}</Text>
+                  <Text style={styles.clothDetail}>Rs. {item.totalAmount || item.totalPrice}/piece</Text>
+                  <Text style={styles.clothDetail}>Under: {item.type}</Text>
+                </View>
+                <TouchableOpacity onPress={() => handleEditCloth(item.id)} style={styles.iconContainer}>
+                  <Image style={{ height: 28, width: 28 }} source={require('../../../../assets/Images/EditIcon.png')} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
         />
       </View>
     </TypeBBackground>
   );
 };
 
-export default DeliveryOrdersScreen;
+export default ManageCloths;
 
 const styles = StyleSheet.create({
   title: {
     fontFamily: fonts.HomeLabel,
+    color: "#FFA717",
+    width: 340,
     fontSize: 21,
-    textAlign: 'left',
-    padding: 25,
-    color: '#F7941E',
   },
-  listContainer: {
-    justifyContent: 'center',
+  inputContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: -25,
+    borderRadius: 8,
+    height: 40,
+    width: '90%',
+    alignSelf: 'center',
+    marginTop: 20,
+    right: 40,
   },
-  loaderContainer: {
+  icon: {
+    marginRight: 8,
+    left: 40,
+    zIndex: 1,
+  },
+  textInput: {
     flex: 1,
+    padding: 0,
+  },
+  clothCard: {
+    borderWidth: 1.5,
+    borderColor: '#F7941E',
+    borderRadius: 10,
+    padding: 15,
+    marginHorizontal: 20,
+    marginBottom: 15,
+  },
+  cardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  clothName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#0077cc',
+    marginBottom: 5,
+    fontFamily: "VarelaRound-Regular",
+  },
+  clothDetail: {
+    fontSize: 14,
+    color: '#0077cc',
+    fontFamily: "VarelaRound-Regular",
+  },
+  iconContainer: {
+    backgroundColor: '#F7941E',
+    borderRadius: 8,
+    padding: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    marginLeft: 10,
   },
 });
