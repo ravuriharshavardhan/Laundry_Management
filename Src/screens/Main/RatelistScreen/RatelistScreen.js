@@ -8,6 +8,7 @@ import fonts from '../../../utils/fonts';
 import TypeBBackground from '../../../components/BackgroundCard/TypeBBackground/TypeBBackground';
 import ImageSlider from '../../../ImageSlider/ImageSlider';
 import MainBackGround from '../../../components/BackgroundCard/MainBackGround';
+import CustomInput from '../../../components/CustomInput/CustomInputA';
 
 const RatelistScreen = () => {
   const navigation = useNavigation();
@@ -31,31 +32,30 @@ const RatelistScreen = () => {
           <Text style={styles.groupTitle}>{title}</Text>
         </TouchableOpacity>
         <Entypo
-          name={expandedGroups[groupKey] ? 'triangle-up' : 'triangle-down'}
+          name={expandedGroups[groupKey] ? 'triangle-down' : 'triangle-down'}
           size={20}
           color={'#5F6368'}
         />
       </View>
       {expandedGroups[groupKey] &&
-        services.map((service, index) => (
-          <TouchableOpacity key={index} onPress={() => handleServicePress(service)}>
-            <CustomerInput
-              backgroundColor={'#fff'}
-              placeholder={service}
-              disabled
-              iconComponent={<Entypo name="triangle-right" size={20} color="#5F6368" />}
-              width={320}
-            />
-          </TouchableOpacity>
-        ))}
+  services.map((service, index) => (
+    <CustomInput
+      key={`${groupKey}-${service}-${index}`} // ✅ Unique key
+      onPress={() => handleServicePress(service)}
+      backgroundColor={'#fff'}
+      placeholder={service}
+      disabled
+      iconComponent={<Entypo name="triangle-right" size={20} color="#5F6368" />}
+      width={320}
+    />
+  ))}
+
     </View>
   );
 
   return (
     <LinearGradient colors={['#fff', '#fff']} start={{ x: 1, y: 0 }} end={{ x: 0, y: 0 }} style={{ flex: 1 }}>
       <ImageSlider />
-
-      {/* Conditionally render background based on platform */}
       {Platform.OS === 'ios' ? (
         <TypeBBackground>
           <View style={styles.cardContainer}>

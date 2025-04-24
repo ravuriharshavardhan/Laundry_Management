@@ -20,6 +20,7 @@ const CustomInput = ({
   onPress = null,
   iconColor,
   backgroundColor,
+  // REMOVE `key` from here
 }) => {
   const isTouchable = disabled && typeof onPress === 'function';
   const Wrapper = isTouchable ? TouchableOpacity : View;
@@ -41,7 +42,7 @@ const CustomInput = ({
         secureTextEntry={secureTextEntry}
         editable={!disabled}
         style={[styles.input, disabled && styles.disabledInput]}
-        placeholderTextColor={disabled ? '#aaa' : '#C4C4C4'}
+        placeholderTextColor={disabled ? '#C4C4C4' : '#C4C4C4'}
         pointerEvents={disabled ? 'none' : 'auto'}
       />
 
@@ -58,6 +59,7 @@ const CustomInput = ({
     </Wrapper>
   );
 };
+
 
 export default CustomInput;
 

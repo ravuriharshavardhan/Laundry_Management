@@ -234,12 +234,13 @@ const AddCloths = () => {
                 }
               </View>
 
-              {/* Display Total Price */}
+
               <Text style={styles.totalPriceText}>Total Price: ₹{totalPrice}</Text>
 
-              {/* Add Cloth Button */}
+
               <View style={{ marginTop: H(50) }}>
                 <CustomButton
+                color='#fff'
                   width={W(290)}
                   backgroundColor={'#F7A917'}
                   height={H(50)}
@@ -250,15 +251,6 @@ const AddCloths = () => {
             </View>
           </KeyboardAvoidingView>
         </ScrollView>
-
-        {/* FAB Button */}
-        <TouchableOpacity
-          style={styles.fab}
-          onPress={() => Alert.alert('FAB Pressed!')}
-        >
-          <Icon name="add" size={30} color="#fff" />
-        </TouchableOpacity>
-
       </TypeBBackground>
     </LinearGradient>
   );
@@ -319,7 +311,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 5,
-    zIndex: 200, // Ensure it's above other components
+    zIndex: 200,
   },
   totalPriceText: {
     fontSize: F(18),

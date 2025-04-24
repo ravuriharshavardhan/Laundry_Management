@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
   Modal,
+  Alert,
 } from 'react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import debounce from 'lodash.debounce';
@@ -47,36 +48,44 @@ const Login = () => {
   }, 300), []);
 
   const handleLogin = useCallback(async () => {
+    if (!email || !password) {
+      Alert.alert("Missing Fields", "Please fill in both email and password.");
+      return;
+    }
+  
     setLoading(true);
+  
     try {
       const payload = { email, password };
       console.log('Attempting to login with credentials:', payload);
-
+  
       const result = await loginUser(payload);
       console.log('Login result received:', result);
-
+  
       if (result?.token) {
         console.log('Login successful, storing token:', result.token);
         await AsyncStorage.setItem('userToken', result.token);
         dispatch(loginSuccess({ token: result.token, user: result.user }));
-
-        // Check specific credentials and navigate accordingly
+  
         if (email === '99210041731@klu.ac.in' && password === 'Qazxcqazxc@01') {
-          navigation.replace('UsersListScreen');  // Navigate to Delivery screen
           console.log('Navigating to Delivery screen');
+          navigation.replace('UsersListScreen');
         } else {
-          navigation.replace('MainTabs');  // Default navigation
           console.log('Navigating to MainTabs screen');
+          navigation.replace('MainTabs');
         }
       } else {
         console.log('Login failed, no token received.');
+        Alert.alert('Login Failed', 'Invalid email or password. Please try again.');
       }
     } catch (error) {
       console.error('Login Error:', error);
+      Alert.alert('Error', 'Something went wrong during login.');
     } finally {
       setLoading(false);
     }
   }, [email, password, dispatch, navigation]);
+  
 
 
   const handleRegister = useCallback(() => {

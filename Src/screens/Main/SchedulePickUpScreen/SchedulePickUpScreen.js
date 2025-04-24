@@ -80,6 +80,30 @@ const SchedulePickUpScreen = () => {
       if (response.status === 201) {
         Alert.alert('Success', 'Order created successfully');
         console.log('✅ Order created:', response.data);
+
+        // 📝 Save address to AsyncStorage
+        const newAddress = {
+          id: Date.now().toString(),
+          fullName: 'N/A',
+          phoneNumber: 'N/A',
+          address: address,
+          city: 'N/A',
+          state: 'N/A',
+          zipCode: 'N/A',
+          country: 'N/A',
+        };
+
+        try {
+          const existing = await AsyncStorage.getItem('userAddresses');
+          const addressArray = existing ? JSON.parse(existing) : [];
+          const updatedAddresses = [...addressArray, newAddress];
+          await AsyncStorage.setItem('userAddresses', JSON.stringify(updatedAddresses));
+          console.log('📦 Address saved to AsyncStorage');
+        } catch (err) {
+          console.error('❌ Failed to store address:', err);
+        }
+
+        // Optional: navigate to summary screen
         // navigation.navigate('OrderSummary', { order: response.data });
       } else {
         Alert.alert('Error', 'Failed to place the order. Please try again.');
@@ -131,6 +155,7 @@ const SchedulePickUpScreen = () => {
                   backgroundColor="#fff"
                   placeholder="Address"
                   width={320}
+                  pointerEvents="none"
                   value={address}
                   onChangeText={setAddressState}
                 />

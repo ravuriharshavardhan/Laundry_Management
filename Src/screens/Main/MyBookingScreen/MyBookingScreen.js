@@ -70,15 +70,16 @@ const MyBookingScreen = ({ navigation }) => {
   };
 
   const renderItem = ({ item, index }) => (
-    <TouchableOpacity onPress={() => handleOrderClick(item._id)} style={styles.cardWrapper}>
+    < >
       <CustomerOrderCard
+      onPress={() => handleOrderClick(item._id)} style={styles.cardWrapper}
         name={fullName || item.names || 'Laundry Order'}
         clothCount={item.clothCount || item.cloths?.reduce((acc, c) => acc + c.pieces, 0) || 0}
         address={item.address || address}
         status={item.status || 'Pending'} // Pass status here
         extraInfo={`💰 ₹${item.price || 0}  •  🧼 ${item.type || '-'}  •  ⚖️ ${item.weight || '-'}kg\n📅 ${item.pickupDate || pickupDate}  •  🕒 ${item.pickupTime || pickupTime}`}
       />
-    </TouchableOpacity>
+    </>
   );
 
   return (

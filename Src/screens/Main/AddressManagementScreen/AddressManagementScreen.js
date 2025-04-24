@@ -81,6 +81,7 @@ const AddressManagementScreen = ({ navigation }) => {
   keyExtractor={(item) => item.id}
   renderItem={renderItem}
   contentContainerStyle={styles.addressList}
+  removeClippedSubviews={false}
 />
 
         </View>
