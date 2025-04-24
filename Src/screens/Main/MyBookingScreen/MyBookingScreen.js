@@ -4,21 +4,24 @@ import {
   View,
   ActivityIndicator,
   FlatList,
+  TouchableOpacity,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import CustomCard from '../../../components/CustomCard/CustomCard';
-import fonts from '../../../utils/fonts';
-import TypeBBackground from '../../../components/BackgroundCard/TypeBBackground/TypeBBackground';
-import Config from '../../../Config/Config';
+import CustomCard from '../../../components/CustomCard/CustomCard';  // Assuming CustomCard is in this path
+import fonts from '../../../utils/fonts';  // Assuming you have custom fonts
+import TypeBBackground from '../../../components/BackgroundCard/TypeBBackground/TypeBBackground';  // Assuming background component
+import Config from '../../../Config/Config';  // Config file with API base URL
+import { H } from '../../../utils/Dimensions';  // Helper for device dimensions if needed
+import CustomerOrderCard from '../../../components/CustomerOrderCard/CustomerOrderCard';
 
-const MyBookingScreen = () => {
+const MyBookingScreen = ({ navigation }) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [fullName, setFullName] = useState(''); // Store fullName from AsyncStorage
+  const [fullName, setFullName] = useState('');
 
   const address = useSelector(state => state.order.address);
   const pickupDate = useSelector(state => state.order.pickupDate);
@@ -29,7 +32,6 @@ const MyBookingScreen = () => {
       try {
         const storedUserInfo = await AsyncStorage.getItem('UserInfo');
         if (storedUserInfo) {
-          // Check if storedUserInfo is JSON or plain string
           const parsedUserInfo = storedUserInfo.startsWith('{') ? JSON.parse(storedUserInfo) : storedUserInfo;
           setFullName(parsedUserInfo.fullName || parsedUserInfo); // Handle both JSON and plain string
         }
@@ -62,20 +64,26 @@ const MyBookingScreen = () => {
     );
   }
 
+  const handleOrderClick = (orderId) => {
+    // Navigate to order detail screen with the orderId
+    // navigation.navigate('OrderDetail', { orderId });
+  };
+
   const renderItem = ({ item, index }) => (
-    <CustomCard
-      key={item._id} // Stable key
-      name={fullName || item.names || 'Laundry Order'}
-      clothCount={item.clothCount || item.cloths?.reduce((acc, c) => acc + c.pieces, 0) || 0}
-      address={item.address || address}
-      imageUri={`https://i.pravatar.cc/150?img=${47 + index}`}
-      extraInfo={`💰 ${item.price || 0} ₹  •  🧼 ${item.type || '-'}  •  ⚖️ ${item.weight || '-'}kg\n📅 ${item.pickupDate || pickupDate}  •  🕒 ${item.pickupTime || pickupTime}`}
-    />
+    <TouchableOpacity onPress={() => handleOrderClick(item._id)} style={styles.cardWrapper}>
+      <CustomerOrderCard
+        name={fullName || item.names || 'Laundry Order'}
+        clothCount={item.clothCount || item.cloths?.reduce((acc, c) => acc + c.pieces, 0) || 0}
+        address={item.address || address}
+        status={item.status || 'Pending'} // Pass status here
+        extraInfo={`💰 ₹${item.price || 0}  •  🧼 ${item.type || '-'}  •  ⚖️ ${item.weight || '-'}kg\n📅 ${item.pickupDate || pickupDate}  •  🕒 ${item.pickupTime || pickupTime}`}
+      />
+    </TouchableOpacity>
   );
 
   return (
     <TypeBBackground>
-      <View style={{ marginTop: 90 }}>
+      <View style={{ marginTop: 30 }}>
         <Text style={styles.headerText}>My Orders</Text>
 
         <FlatList
@@ -83,6 +91,7 @@ const MyBookingScreen = () => {
           keyExtractor={(item) => item._id || index.toString()} // Ensure unique key
           renderItem={renderItem}
           contentContainerStyle={styles.cardContainer}
+          removeClippedSubviews={false}
           ListEmptyComponent={<Text style={styles.emptyText}>No orders found</Text>}
         />
       </View>
@@ -108,7 +117,10 @@ const styles = StyleSheet.create({
   cardContainer: {
     alignItems: 'center',
     rowGap: 10,
-    paddingBottom: 40,
+    paddingBottom: 80, // You can increase this if needed
+  },
+  cardWrapper: {
+    width: '90%',
   },
   emptyText: {
     marginTop: 50,

@@ -27,72 +27,71 @@ import Config from '../../../Config/Config';
 const SchedulePickUpScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const cloths = useSelector(state => state.order.cloths); 
+  const cloths = useSelector(state => state.order.cloths);
 
   const [address, setAddressState] = useState('');
   const [pickupDate, setPickupDateState] = useState('');
   const [pickupTime, setPickupTimeState] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const [coupon, setCoupon] = useState("");
-
-  
-
+  const [coupon, setCoupon] = useState('');
 
   const handleAddCloths = useCallback(() => {
     navigation.navigate('AddCloths');
   }, [navigation]);
 
   const handlePlaceOrder = async () => {
-    const orderData = {
-      address,
-      pickupDate,
-      pickupTime,
-      cloths,
-  
-    };
-  
-    // Validate inputs before making the request
+    console.log('🚨 Attempting to place order...');
+    console.log('🧺 Order data:', { address, pickupDate, pickupTime, cloths });
+
     if (!address || !pickupDate || !pickupTime || !cloths || cloths.length === 0) {
       Alert.alert('Missing Information', 'Please fill in all the required fields');
       return;
     }
-  
-    // Dispatching order details to Redux
+
     dispatch(setAddress(address));
     dispatch(setPickupDate(pickupDate));
     dispatch(setPickupTime(pickupTime));
-  
-    console.log('🧺 Order Summary:', orderData);
-  
+
     try {
-      const token = await AsyncStorage.getItem('userToken'); 
-      const response = await axios.post(`${Config.API_BASE_URL}/api/orders/create-order`, orderData ,{
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const token = await AsyncStorage.getItem('userToken');
+      console.log('📦 Token:', token);
+
+      if (!token) {
+        Alert.alert('Authentication Error', 'Please log in again.');
+        return;
+      }
+
+      const response = await axios.post(
+        `${Config.API_BASE_URL}/api/orders/create-order`,
+        {
+          address,
+          pickupDate,
+          pickupTime,
+          cloths,
         },
-      });
-  
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       if (response.status === 201) {
-        // If the order is created successfully, navigate to 'OrderSummary'
-        console.log('Order created successfully:', response.data);
-        Alert.alert('Order created successfully')
+        Alert.alert('Success', 'Order created successfully');
+        console.log('✅ Order created:', response.data);
         // navigation.navigate('OrderSummary', { order: response.data });
       } else {
-        // Handle unsuccessful response
-        console.error('Failed to create order:', response.data);
         Alert.alert('Error', 'Failed to place the order. Please try again.');
+        console.error('❌ API Error Response:', response.data);
       }
     } catch (error) {
-      // Handle network errors or API errors
-      console.error('Error occurred while placing the order:', error);
+      console.error('❌ API Request Failed:', error);
       Alert.alert('Error', 'Something went wrong. Please try again later.');
     }
   };
-  
-  
 
-  const handleConfirmDate = (selectedDate) => {
+  const handleConfirmDate = selectedDate => {
     if (selectedDate) {
       const formattedDate = selectedDate.toDateString();
       setPickupDateState(formattedDate);
@@ -100,7 +99,7 @@ const SchedulePickUpScreen = () => {
     setShowDatePicker(false);
   };
 
-  const handleConfirmTime = (selectedTime) => {
+  const handleConfirmTime = selectedTime => {
     if (selectedTime) {
       const formattedTime = selectedTime.toLocaleTimeString([], {
         hour: '2-digit',
@@ -177,17 +176,15 @@ const SchedulePickUpScreen = () => {
                   placeholder="Coupon (If any)"
                   width={320}
                   value={coupon}
-                  onChangeText={(text)=>setCoupon(text)}
-
+                  onChangeText={text => setCoupon(text)}
                 />
 
                 <View style={{ alignItems: 'center' }}>
                   <CustomButton
-                  color={"#fff"}
+                    color="#fff"
                     backgroundColor="#F7A917"
                     height={50}
                     width={200}
-                    
                     title="Place Order"
                     onPress={handlePlaceOrder}
                   />
@@ -198,7 +195,6 @@ const SchedulePickUpScreen = () => {
         </KeyboardAwareScrollView>
       </TouchableWithoutFeedback>
 
-      {/* Date Picker */}
       <DateTimePicker
         isVisible={showDatePicker}
         mode="date"
@@ -206,7 +202,6 @@ const SchedulePickUpScreen = () => {
         onCancel={() => setShowDatePicker(false)}
       />
 
-      {/* Time Picker */}
       <DateTimePicker
         isVisible={showTimePicker}
         mode="time"

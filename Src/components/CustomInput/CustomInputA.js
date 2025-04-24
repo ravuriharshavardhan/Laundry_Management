@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const CustomerInput = ({
+const CustomInput = ({
   placeholder,
   value,
   onChangeText,
@@ -59,7 +59,7 @@ const CustomerInput = ({
   );
 };
 
-export default CustomerInput;
+export default CustomInput;
 
 const styles = StyleSheet.create({
   inputWrapper: {

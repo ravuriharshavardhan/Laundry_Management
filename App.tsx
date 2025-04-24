@@ -27,6 +27,8 @@ import UserListScreen from './Src/screens/Admin/UsersList/UsersListScreen';
 import RatelistInfo from './Src/screens/Main/RatelistScreen/RatelistInfo';
 import UserComplaint from './Src/screens/Main/UserComplaint/UserComplaint';
 import UsersListScreen from './Src/screens/Admin/UsersList/UsersListScreen';
+import AddressManagementScreen from './Src/screens/Main/AddressManagementScreen/AddressManagementScreen';
+import AddAddressScreen from './Src/screens/Main/AddressManagementScreen/AddAddressScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -106,6 +108,8 @@ const HomeStack = () => (
     <Stack.Screen name="Login" component={Login} />
     <Stack.Screen name="Signup" component={SignUp} />
     <Stack.Screen name="UsersListScreen" component={UsersListScreen} />
+    <Stack.Screen name="AddressManagement" component={AddressManagementScreen} />
+    <Stack.Screen name="AddAddressScreen" component={AddAddressScreen} />
   </Stack.Navigator>
 );
 

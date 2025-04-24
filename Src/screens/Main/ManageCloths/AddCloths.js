@@ -31,30 +31,26 @@ const AddCloths = () => {
 
   const [clothName, setClothName] = useState('');
   const [clothWeight, setClothWeight] = useState('');
-  const [clothPrice, setClothPrice] = useState('');
-  const [clothType, setClothType] = useState(null);
-  const [couponCode, setCouponCode] = useState('');
+  const [clothType, setClothType] = useState(null);  // Ensure initial state is set to null
   const [numberOfPieces, setNumberOfPieces] = useState(null);
+  const [totalPrice, setTotalPrice] = useState(0);
 
   const itemsData = [
-    { name: 'Shirt', rate: 30, discount: 20 },
-    { name: 'T-Shirt', rate: 50, discount: 30 },
-    { name: 'Ladies Top', rate: 80, discount: 60 },
-    { name: 'Trousers', rate: 100, discount: 80 },
-    { name: 'Jeans', rate: 120, discount: 100 },
+    { name: 'Shirt', rate: 30 },
+    { name: 'T-Shirt', rate: 50 },
+    { name: 'Ladies Top', rate: 80 },
+    { name: 'Trousers', rate: 100 },
+    { name: 'Jeans', rate: 120 },
   ];
-  
-  // Extract unique cloth names
-  const clothDropdownItems = [
-    ...new Map(itemsData.map(i => [i.name, i])).values(),
-  ].map(item => ({
-    label: item.name,
-    value: item.name,
-  }));
-  
-  console.log(clothDropdownItems);
-  
 
+  // Extract cloth names for the dropdown with their fixed prices
+  const clothDropdownItems = itemsData.map(item => ({
+    label: `${item.name} - ₹${item.rate}`,  // Display cloth name with fixed price
+    value: item.name,
+    rate: item.rate,  // Store the fixed price for calculation
+  }));
+
+  // Type Data
   const typeData = [
     { label: 'Wash & Steam Iron', value: 'Wash & Steam Iron' },
     { label: 'Wash & Fold', value: 'Wash & Fold' },
@@ -68,48 +64,47 @@ const AddCloths = () => {
   }));
 
   const handleAddCloths = useCallback(() => {
+    console.log('Cloth Name:', clothName);
+    console.log('Cloth Weight:', clothWeight);
+    console.log('Cloth Type:', clothType);
+    console.log('Number of Pieces:', numberOfPieces);
+    console.log('Total Price:', totalPrice);
+
     if (!clothName || !clothWeight || !clothType || !numberOfPieces) {
       Alert.alert('Validation Error', 'Please fill all the fields.');
       return;
     }
-  
-    // Find selected cloth details
+
     const selectedItem = itemsData.find(item => item.name === clothName);
     const rate = selectedItem?.rate || 0;
-    const discount = selectedItem?.discount || 0;
-  
     const pieces = parseInt(numberOfPieces);
-    const finalUnitPrice = rate - discount;
-    const totalPrice = finalUnitPrice * pieces;
-  
+
+    const finalTotalPrice = rate * pieces;
+
     const newCloth = {
       id: Date.now(),
       name: clothName,
       weight: clothWeight,
-      totalPrice: totalPrice, 
+      totalPrice: finalTotalPrice, 
       type: clothType,
       pieces: pieces,
     };
-  
+
     console.log('🧺 New Cloth Added:', newCloth); // Debug log
-  
     dispatch(addCloth(newCloth));
-  
-    // Uncomment if you want to send it to the server
-    /*
-    axios.post('http://192.168.1.6:3000/api/orders/create-order', newCloth)
-      .then(res => {
-        console.log('📤 Sent to server:', res.data);
-      })
-      .catch(err => {
-        console.error('❌ Axios error:', err);
-      });
-    */
-  
-    Alert.alert('Cloth Added!', `You have added ${clothName} - ₹${totalPrice}`);
+
+    Alert.alert('Cloth Added!', `You have added ${clothName} - ₹${finalTotalPrice}`);
     navigation.goBack();
-  }, [clothName, clothWeight, clothType, numberOfPieces, dispatch, navigation]);
-  
+  }, [clothName, clothWeight, clothType, numberOfPieces, totalPrice, dispatch, navigation]);
+
+  // Update total price when quantity changes
+  const handleQuantityChange = (quantity) => {
+    setNumberOfPieces(quantity);
+    const selectedItem = itemsData.find(item => item.name === clothName);
+    const rate = selectedItem?.rate || 0;
+    const calculatedPrice = rate * quantity;
+    setTotalPrice(calculatedPrice);  // Update the total price dynamically
+  };
 
   return (
     <LinearGradient colors={['#fff', '#fff']} style={{ flex: 1 }}>
@@ -147,7 +142,7 @@ const AddCloths = () => {
                     <AndroidCustomDropdown
                       label="Select Cloth Name"
                       value={clothName}
-                      onChange={setClothName}  // Ensure the value is updated in the parent component
+                      onChange={setClothName}
                       data={clothDropdownItems}
                       placeholder="Select Cloth"
                       editable={true}
@@ -193,13 +188,13 @@ const AddCloths = () => {
                       placeholder="Select Number of Pieces"
                       value={numberOfPieces}
                       showsVerticalScrollIndicator
-                      onChange={item => setNumberOfPieces(item.value)}
+                      onChange={item => handleQuantityChange(item.value)}
                     />
                   ) : (
                     <AndroidCustomDropdown
                       label="Select Number of Pieces"
                       value={numberOfPieces}
-                      onChange={setNumberOfPieces}
+                      onChange={handleQuantityChange}
                       data={pieceCountData}
                       placeholder="Select Number of Pieces"
                       editable={true}
@@ -210,21 +205,37 @@ const AddCloths = () => {
 
               {/* Cloth Type Dropdown */}
               <View style={styles.dropdownWrapper}>
-                <Dropdown
-                  style={styles.dropdown}
-                  placeholderStyle={styles.placeholderStyle}
-                  selectedTextStyle={styles.selectedTextStyle}
-                  containerStyle={styles.dropdownContainer}
-                  data={typeData}
-                  maxHeight={H(200)}
-                  labelField="label"
-                  valueField="value"
-                  placeholder="Select Cloth Type"
-                  value={clothType}
-                  showsVerticalScrollIndicator
-                  onChange={item => setClothType(item.value)}
-                />
+                {
+                  Platform.OS === 'ios' ? (
+                    <Dropdown
+                      style={styles.dropdown}
+                      placeholderStyle={styles.placeholderStyle}
+                      selectedTextStyle={styles.selectedTextStyle}
+                      containerStyle={styles.dropdownContainer}
+                      data={typeData}
+                      maxHeight={200}
+                      labelField="label"
+                      valueField="value"
+                      placeholder="Select Cloth Type"
+                      value={clothType}
+                      showsVerticalScrollIndicator
+                      onChange={setClothType}
+                    />
+                  ) : (
+                    <AndroidCustomDropdown
+                      label="Select Cloth Type"
+                      value={clothType}
+                      onChange={setClothType}
+                      data={typeData}
+                      placeholder="Select Cloth"
+                      editable={true}
+                    />
+                  )
+                }
               </View>
+
+              {/* Display Total Price */}
+              <Text style={styles.totalPriceText}>Total Price: ₹{totalPrice}</Text>
 
               {/* Add Cloth Button */}
               <View style={{ marginTop: H(50) }}>
@@ -239,7 +250,7 @@ const AddCloths = () => {
             </View>
           </KeyboardAvoidingView>
         </ScrollView>
-        
+
         {/* FAB Button */}
         <TouchableOpacity
           style={styles.fab}
@@ -310,5 +321,10 @@ const styles = StyleSheet.create({
     elevation: 5,
     zIndex: 200, // Ensure it's above other components
   },
+  totalPriceText: {
+    fontSize: F(18),
+    color: '#F7941E',
+    marginTop: H(15),
+    fontFamily:"trebuc"
+  },
 });
-

@@ -51,15 +51,15 @@ const Login = () => {
     try {
       const payload = { email, password };
       console.log('Attempting to login with credentials:', payload);
-  
+
       const result = await loginUser(payload);
       console.log('Login result received:', result);
-  
+
       if (result?.token) {
         console.log('Login successful, storing token:', result.token);
         await AsyncStorage.setItem('userToken', result.token);
         dispatch(loginSuccess({ token: result.token, user: result.user }));
-  
+
         // Check specific credentials and navigate accordingly
         if (email === '99210041731@klu.ac.in' && password === 'Qazxcqazxc@01') {
           navigation.replace('UsersListScreen');  // Navigate to Delivery screen
@@ -77,7 +77,7 @@ const Login = () => {
       setLoading(false);
     }
   }, [email, password, dispatch, navigation]);
-  
+
 
   const handleRegister = useCallback(() => {
     console.log('Navigating to Signup screen...');
@@ -133,15 +133,19 @@ const Login = () => {
             <View style={styles.optionsRow}>
               <CheckBox
                 style={styles.checkbox}
-                value={remember}
                 onClick={() => {
-                  console.log('Remember password toggled:', !remember);  // Log toggle action
+                  console.log('Remember password toggled:', !remember);
                   setRemember(!remember);
                 }}
                 isChecked={remember}
-                checkBoxColor="#fff"
+                rightTextStyle={styles.rememberText}
+                checkBoxColor="#D4C5C5" // Grey border and tick color
+                unCheckedCheckBoxColor="#D4C5C5" // Unchecked border color
+                checkedCheckBoxColor="#808080" // Checked border & tick color
+                checkBoxBackgroundColor="#fff" // Custom prop – might not be supported
               />
               <Text style={styles.rememberText}>Remember password</Text>
+
               <TouchableOpacity style={{ marginLeft: 'auto' }}>
                 <Text style={styles.link}>Forgot password</Text>
               </TouchableOpacity>
@@ -212,8 +216,9 @@ const styles = StyleSheet.create({
     marginHorizontal: wp('6%'),
   },
   link: {
-    color: '#888',
+    color: '#4D7EF9',
     fontSize: hp('1.75%'),
+    fontFamily: "trebuc"
   },
   optionsRow: {
     flexDirection: 'row',
@@ -224,6 +229,7 @@ const styles = StyleSheet.create({
     fontSize: hp('1.75%'),
     color: '#555',
     marginLeft: wp('2%'),
+    fontFamily: "trebuc"
   },
   buttonRow: {
     flexDirection: 'row',
@@ -248,4 +254,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  checkbox: {
+
+    marginRight: 8,
+    borderRadius: 4,
+    left: 10
+  },
+
 });

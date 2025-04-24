@@ -1,21 +1,19 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, Image, View } from 'react-native';
 
-const CustomButton = ({ title, onPress, icon, backgroundColor, width = 247, height = 36  ,color}) => {
+const CustomButton = ({ title, onPress, icon, backgroundColor, width = 247, height = 36, color = '#000' }) => {
   return (
     <TouchableOpacity
       style={[styles.button, { width, height, backgroundColor }]}
       onPress={onPress}
+      activeOpacity={0.7}
     >
-      {/* Absolute icon container on the left */}
       {icon && (
         <View style={styles.iconWrapper}>
           <Image source={icon} style={styles.icon} />
         </View>
       )}
-
-      {/* Centered text */}
-      <Text style={[styles.text,{color:color}]}>{title}</Text>
+      <Text style={[styles.text, { color }]}>{title}</Text>
     </TouchableOpacity>
   );
 };
@@ -30,8 +28,9 @@ const styles = StyleSheet.create({
     elevation: 4,
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'relative',
     flexDirection: 'row',
+    paddingHorizontal: 16,
+    position: 'relative',
   },
   iconWrapper: {
     position: 'absolute',
@@ -46,9 +45,9 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   text: {
-    color: '#000',
     fontSize: 14,
-    fontFamily: "trebuc",
+    fontFamily: 'trebuc',
+    textAlign: 'center',
   },
 });
 

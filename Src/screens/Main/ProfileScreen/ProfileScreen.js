@@ -18,6 +18,7 @@ import MainBackGround from '../../../components/BackgroundCard/MainBackGround'; 
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Config from '../../../Config/Config';
+import { logout } from '../../../Redux/Slice/authSlice';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -68,12 +69,14 @@ const ProfileScreen = () => {
 
   const menuItems = [
     { label: 'My Bookings', icon: 'bell-outline', screen: 'MyBookings' },
-    { label: 'Payments', icon: 'credit-card-outline', screen: 'Payments' },
+    { label: 'Payments', icon: 'credit-card-outline', screen: '2' },
     { label: 'Coupons & Referrals', icon: 'ticket-percent-outline', screen: 'Coupons' },
     { label: 'Complaints', icon: 'message-outline', screen: 'UserComplaint' },
     { label: 'FAQs & Contact Us', icon: 'help-circle-outline', screen: 'Support' },
+    { label: 'Addresses', icon: 'home-outline', screen: 'AddressManagement' }, // New "Addresses" entry
     { label: 'Logout', icon: 'logout', screen: 'Login' },
   ];
+  
 
   useEffect(() => {
     fetchUserProfile();  // Fetch user profile when the component mounts
@@ -171,14 +174,14 @@ const ProfileScreen = () => {
               fontSize: 21,
               textAlign: 'left',
               color: '#F7941E',
-              top: 100,
+              top: 50,
               paddingLeft: 30,
             }}
           >
             Profile
           </Text>
 
-          <View style={{ marginHorizontal: 30, marginTop: 120 }}>
+          <View style={{ marginHorizontal: 30, marginTop: 80 }}>
             {/* User Info Section */}
             <View style={{ alignItems: 'center', marginBottom: 20 }}>
               <Image
