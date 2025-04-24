@@ -29,6 +29,7 @@ import UserComplaint from './Src/screens/Main/UserComplaint/UserComplaint';
 import UsersListScreen from './Src/screens/Admin/UsersList/UsersListScreen';
 import AddressManagementScreen from './Src/screens/Main/AddressManagementScreen/AddressManagementScreen';
 import AddAddressScreen from './Src/screens/Main/AddressManagementScreen/AddAddressScreen';
+import OrderInfoScreen from './Src/screens/Main/ManageCloths/OrderInfoScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -110,6 +111,7 @@ const HomeStack = () => (
     <Stack.Screen name="UsersListScreen" component={UsersListScreen} />
     <Stack.Screen name="AddressManagement" component={AddressManagementScreen} />
     <Stack.Screen name="AddAddressScreen" component={AddAddressScreen} />
+    <Stack.Screen name="OrderInfoScreen" component={OrderInfoScreen} />
   </Stack.Navigator>
 );
 

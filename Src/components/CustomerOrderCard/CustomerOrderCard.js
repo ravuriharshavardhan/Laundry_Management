@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+
+  TouchableOpacity,
+  Pressable,
+} from 'react-native';
 
 const CustomerOrderCard = ({
   name,
@@ -7,6 +14,7 @@ const CustomerOrderCard = ({
   address,
   imageUri,
   status,
+  onPress,
   avatarWidth = 50,
   avatarHeight = 50,
   cardWidth = '90%',
@@ -30,21 +38,14 @@ const CustomerOrderCard = ({
   };
 
   return (
-    <View style={[styles.card, { width: cardWidth }]}>
-      <Image
-        source={{ uri: imageUri }}
-        style={[
-          styles.avatar,
-          { width: avatarWidth, height: avatarHeight },
-        ]}
-      />
-
+    <Pressable onPress={onPress} style={[styles.card, { width: cardWidth }]}>
+     
+    
       <View style={styles.details}>
         <Text style={styles.name}>{name}</Text>
         <Text style={styles.subText}>Number of Clothes: {clothCount}</Text>
         <Text style={styles.subText}>{address}</Text>
 
-        {/* Status Badge */}
         {status && (
           <View style={[styles.statusBadge, getStatusStyle(status)]}>
             <Text style={styles.statusText}>{status.toUpperCase()}</Text>
@@ -52,7 +53,6 @@ const CustomerOrderCard = ({
         )}
       </View>
 
-      {/* Render custom icons passed as props */}
       <View style={styles.iconWrapper}>
         {rightIcons.map((icon, index) => (
           <TouchableOpacity key={index} onPress={icon.onPress} style={styles.iconButton}>
@@ -60,7 +60,7 @@ const CustomerOrderCard = ({
           </TouchableOpacity>
         ))}
       </View>
-    </View>
+    </Pressable>
   );
 };
 

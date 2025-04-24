@@ -5,6 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { combineReducers } from 'redux';
 import authReducer from '../Slice/authSlice';
 import orderReducer from '../Slice/AddClothSlice';
+import InfoOrderReducer from '../Slice/orderSlice';
+
 
 
 const persistConfig = {
@@ -16,6 +18,8 @@ const persistConfig = {
 const rootReducer = combineReducers({
   order: orderReducer, 
   auth: authReducer,
+  InfoOrder: InfoOrderReducer,
+
 });
 
 

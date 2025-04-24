@@ -10,8 +10,6 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import CustomCard from '../../../components/CustomCard/CustomCard';  // Assuming CustomCard is in this path
 import fonts from '../../../utils/fonts';  // Assuming you have custom fonts
 import TypeBBackground from '../../../components/BackgroundCard/TypeBBackground/TypeBBackground';  // Assuming background component
 import Config from '../../../Config/Config';  // Config file with API base URL
@@ -64,15 +62,16 @@ const MyBookingScreen = ({ navigation }) => {
     );
   }
 
-  const handleOrderClick = (orderId) => {
-    // Navigate to order detail screen with the orderId
-    // navigation.navigate('OrderDetail', { orderId });
+  const handleOrderClick = (order) => {
+    // Pass the whole order object to the next screen
+    navigation.navigate('OrderInfoScreen', { order });
   };
 
   const renderItem = ({ item, index }) => (
     < >
       <CustomerOrderCard
-      onPress={() => handleOrderClick(item._id)} style={styles.cardWrapper}
+        onPress={() => handleOrderClick(item)} // Pass the entire order object here
+        style={styles.cardWrapper}
         name={fullName || item.names || 'Laundry Order'}
         clothCount={item.clothCount || item.cloths?.reduce((acc, c) => acc + c.pieces, 0) || 0}
         address={item.address || address}
