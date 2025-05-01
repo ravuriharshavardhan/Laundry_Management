@@ -30,6 +30,13 @@ import UsersListScreen from './Src/screens/Admin/UsersList/UsersListScreen';
 import AddressManagementScreen from './Src/screens/Main/AddressManagementScreen/AddressManagementScreen';
 import AddAddressScreen from './Src/screens/Main/AddressManagementScreen/AddAddressScreen';
 import OrderInfoScreen from './Src/screens/Main/ManageCloths/OrderInfoScreen';
+import ForgotPassword from './Src/screens/Auth/Screens/ForgotPassword';
+import LaundryDetailScreen from './Src/screens/Main/LaundryDetailScreen/LaundryDetailScreen';
+import DryCleaning from './Src/screens/Info/DryCleaning';
+import ScheduleScreen from './Src/screens/Main/ScheduleScreen/ScheduleScreen';
+import HomeCare from './Src/screens/Info/HomeCare';
+import Ironing from './Src/screens/Info/Ironing';
+import CarpetCleaning from './Src/screens/Info/CarpetCleaning';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -89,14 +96,28 @@ const MainTabs = () => (
 
 const AuthStack = () => (
   <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Screen name="MainTabs" component={MainTabs} />
     <Stack.Screen name="Login" component={Login} />
     <Stack.Screen name="Signup" component={SignUp} />
     <Stack.Screen name="SignUp2" component={SignUp2} />
     <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+    <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+    <Stack.Screen name="DryCleaning" component={DryCleaning} />
     <Stack.Screen name="UsersListScreen" component={UsersListScreen} />
+    <Stack.Screen name="ScheduleScreen" component={ScheduleScreen} />
+    <Stack.Screen name="MyBookings" component={MyBookingScreen} />
+    <Stack.Screen
+      name="AddressManagement"
+      component={AddressManagementScreen}
+    />
+    <Stack.Screen name="AddAddressScreen" component={AddAddressScreen} />
+    <Stack.Screen name="OrderSummaryScreen" component={OrderInfoScreen} />
+    <Stack.Screen name="HomeCare" component={HomeCare} />
+    <Stack.Screen name="ironing" component={Ironing} />
+    <Stack.Screen name="CarpetCleaning" component={CarpetCleaning} />
+    <Stack.Screen name="RateListDetail" component={RatelistInfo} />
   </Stack.Navigator>
 );
-
 const HomeStack = () => (
   <Stack.Navigator screenOptions={{headerShown: false}}>
     <Stack.Screen name="MainTabs" component={MainTabs} />
@@ -108,10 +129,20 @@ const HomeStack = () => (
     <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
     <Stack.Screen name="Login" component={Login} />
     <Stack.Screen name="Signup" component={SignUp} />
+    <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
     <Stack.Screen name="UsersListScreen" component={UsersListScreen} />
-    <Stack.Screen name="AddressManagement" component={AddressManagementScreen} />
+    <Stack.Screen
+      name="AddressManagement"
+      component={AddressManagementScreen}
+    />
     <Stack.Screen name="AddAddressScreen" component={AddAddressScreen} />
-    <Stack.Screen name="OrderInfoScreen" component={OrderInfoScreen} />
+    <Stack.Screen name="OrderSummaryScreen" component={OrderInfoScreen} />
+    <Stack.Screen name="LaundryDetail" component={LaundryDetailScreen} />
+    <Stack.Screen name="DryCleaning" component={DryCleaning} />
+    <Stack.Screen name="HomeCare" component={HomeCare} />
+    <Stack.Screen name="ironing" component={Ironing} />
+    <Stack.Screen name="CarpetCleaning" component={CarpetCleaning} />
+    <Stack.Screen name="ScheduleScreen" component={ScheduleScreen} />
   </Stack.Navigator>
 );
 
@@ -119,7 +150,7 @@ const DeliveryStack = () => (
   <Stack.Navigator screenOptions={{headerShown: false}}>
     <Stack.Screen name="UsersListScreen" component={UsersListScreen} />
     <Stack.Screen name="Login" component={Login} />
-    {/* Add more delivery-specific screens here if needed */}
+
   </Stack.Navigator>
 );
 
@@ -136,7 +167,6 @@ const AppNavigation = () => {
 
   const isDelivery =
     user?.email === '99210041731@klu.ac.in' && user?.role === 'Delivery';
-
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{headerShown: false}}>
@@ -165,7 +195,6 @@ const App = () => {
 };
 
 export default App;
-
 const styles = StyleSheet.create({
   screen: {
     flex: 1,

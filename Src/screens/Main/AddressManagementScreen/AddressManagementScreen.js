@@ -19,7 +19,7 @@ const AddressManagementScreen = ({ navigation }) => {
   useEffect(() => {
     const fetchAddresses = async () => {
       try {
-        const storedAddresses = await AsyncStorage.getItem('userAddresses');
+        const storedAddresses = await AsyncStorage.getItem('userAddress');
         if (storedAddresses) {
           setAddresses(JSON.parse(storedAddresses));
         }
@@ -41,7 +41,7 @@ const AddressManagementScreen = ({ navigation }) => {
         onPress: () => {
           const updatedAddresses = addresses.filter((address) => address.id !== id);
           setAddresses(updatedAddresses);
-          AsyncStorage.setItem('userAddresses', JSON.stringify(updatedAddresses));
+          AsyncStorage.setItem('userAddress', JSON.stringify(updatedAddresses));
         },
       },
     ]);

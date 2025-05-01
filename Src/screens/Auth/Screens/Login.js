@@ -10,7 +10,7 @@ import {
   Modal,
   Alert,
 } from 'react-native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import debounce from 'lodash.debounce';
 import CustomerInput from '../../../components/CustomInput/CustomInputA';
 import CheckBox from 'react-native-check-box';
@@ -32,66 +32,57 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
-  const [activeTab, setActiveTab] = useState(false);
+  const [activeTab, setActiveTab] = useState('Customer');
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
-
   const dispatch = useDispatch();
 
-  // Debounced loggers
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const logEmail = useCallback(debounce((val) => {
     console.log('Email input changed:', val);
   }, 300), []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const logPassword = useCallback(debounce((val) => {
     console.log('Password input changed:', val);
   }, 300), []);
 
-  const handleLogin = useCallback(async () => {
-    if (!email || !password) {
-      Alert.alert("Missing Fields", "Please fill in both email and password.");
-      return;
-    }
-  
-    setLoading(true);
-  
-    try {
-      const payload = { email, password };
-      console.log('Attempting to login with credentials:', payload);
-  
-      const result = await loginUser(payload);
-      console.log('Login result received:', result);
-  
-      if (result?.token) {
-        console.log('Login successful, storing token:', result.token);
-        await AsyncStorage.setItem('userToken', result.token);
-        dispatch(loginSuccess({ token: result.token, user: result.user }));
-  
-        if (email === '99210041731@klu.ac.in' && password === 'Qazxcqazxc@01') {
-          console.log('Navigating to Delivery screen');
-          navigation.replace('UsersListScreen');
-        } else {
-          console.log('Navigating to MainTabs screen');
-          navigation.replace('MainTabs');
-        }
-      } else {
-        console.log('Login failed, no token received.');
-        Alert.alert('Login Failed', 'Invalid email or password. Please try again.');
-      }
-    } catch (error) {
-      console.error('Login Error:', error);
-      Alert.alert('Error', 'Something went wrong during login.');
-    } finally {
-      setLoading(false);
-    }
-  }, [email, password, dispatch, navigation]);
-  
 
+    // if (email || password) {
+    //   Alert.alert("Missing Fields", "Please fill in both email and password.");
+    //   return;
+    // }
+    // setLoading(true);
+    // try {
+    //   const payload = { email, password, role: activeTab };
+    //   console.log('Attempting to login with credentials:', payload);
+    //   const result = await loginUser(payload);
+    //   console.log('Login result received:', result);
+    //   if (result?.token) {
+    //     await AsyncStorage.setItem('userToken', result.token);
+    //     dispatch(loginSuccess({ token: result.token, user: result.user }));
+    //     if (activeTab === 'Driver') {
+    //       navigation.replace('DriverDashboard');
+    //     } else {
+          navigation.replace('MainTabs');
+        // }
+  //     } else {
+  //       Alert.alert('Login Failed', 'Invalid email or password. Please try again.');
+  //     }
+  //   } catch (error) {
+  //     console.error('Login Error:', error);
+  //     Alert.alert('Error', 'Something went wrong during login.');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, [email, password, activeTab, dispatch, navigation]);
 
   const handleRegister = useCallback(() => {
-    console.log('Navigating to Signup screen...');
     navigation.navigate('Signup');
-    setActiveTab('register');
+  }, [navigation]);
+
+  const handleForgotPassword = useCallback(() => {
+    navigation.navigate('ForgotPassword');
   }, [navigation]);
 
   return (
@@ -111,51 +102,80 @@ const Login = () => {
               highlight="Terms and Privacy Policy"
             />
 
+            {/* Tab Selector */}
+            <View style={styles.tabContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.tab,
+                  activeTab === 'Customer' && styles.activeTab,
+                ]}
+                onPress={() => setActiveTab('Customer')}
+              >
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === 'Customer' && styles.activeTabText,
+                  ]}
+                >
+                  Customer
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.tab,
+                  activeTab === 'Driver' && styles.activeTab,
+                ]}
+                onPress={() => setActiveTab('Driver')}
+              >
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === 'Driver' && styles.activeTabText,
+                  ]}
+                >
+                  Driver
+                </Text>
+              </TouchableOpacity>
+            </View>
+
             <View style={{ rowGap: 20 }}>
               <CustomerInput
-                iconColor={"#FFA717"}
+                iconColor="#FFA717"
                 placeholder="Email Address"
                 iconName="mail-outline"
                 value={email}
                 onChangeText={(val) => {
-                  console.log('Email changed:', val);  // Log email input
                   setEmail(val);
                   logEmail(val);
                 }}
-                backgroundColor={"#fff"}
+                backgroundColor="#fff"
               />
               <CustomerInput
-                iconColor={"#FFA717"}
+                iconColor="#FFA717"
                 placeholder="Password"
                 iconName="lock-closed-outline"
                 value={password}
                 onChangeText={(val) => {
-                  console.log('Password changed:', val);  // Log password input
                   setPassword(val);
                   logPassword(val);
                 }}
                 secureTextEntry
-                backgroundColor={"#fff"}
+                backgroundColor="#fff"
               />
             </View>
 
             <View style={styles.optionsRow}>
               <CheckBox
                 style={styles.checkbox}
-                onClick={() => {
-                  console.log('Remember password toggled:', !remember);
-                  setRemember(!remember);
-                }}
+                onClick={() => setRemember(!remember)}
                 isChecked={remember}
                 rightTextStyle={styles.rememberText}
-                checkBoxColor="#D4C5C5" // Grey border and tick color
-                unCheckedCheckBoxColor="#D4C5C5" // Unchecked border color
-                checkedCheckBoxColor="#808080" // Checked border & tick color
-                checkBoxBackgroundColor="#fff" // Custom prop – might not be supported
+                checkBoxColor="#D4C5C5"
+                unCheckedCheckBoxColor="#D4C5C5"
+                checkedCheckBoxColor="#808080"
               />
               <Text style={styles.rememberText}>Remember password</Text>
-
-              <TouchableOpacity style={{ marginLeft: 'auto' }}>
+              <TouchableOpacity style={{ marginLeft: 'auto' }} onPress={handleForgotPassword}>
                 <Text style={styles.link}>Forgot password</Text>
               </TouchableOpacity>
             </View>
@@ -164,14 +184,14 @@ const Login = () => {
               <View style={{ flex: 1, marginRight: wp('2%') }}>
                 <CustomGradientButton
                   title="Login"
-                  active={activeTab === 'login'}
-                  onPress={handleLogin}
+                  active={true}
+                  onPress={    ()=>      navigation.replace('MainTabs')}
                 />
               </View>
               <View style={{ flex: 1, marginLeft: wp('2%') }}>
                 <CustomGradientButton
                   title="Register"
-                  active={activeTab === 'register'}
+                  active={false}
                   onPress={handleRegister}
                 />
               </View>
@@ -196,8 +216,6 @@ const Login = () => {
           </View>
         </TypeABackground>
       </ScrollView>
-
-      {/* ✅ Loading Modal Overlay */}
       <Modal transparent={true} visible={loading}>
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#FFA717" />
@@ -224,10 +242,37 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp('5%'),
     marginHorizontal: wp('6%'),
   },
+  tabContainer: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: hp('2%'),
+    
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: hp('1.2%'),
+    backgroundColor: '#f2f2f2',
+    alignItems: 'center',
+  },
+  activeTab: {
+    backgroundColor: '#FFA717',
+  },
+  tabText: {
+    fontSize: hp('1.8%'),
+    color: '#333',
+    fontFamily: 'trebuc',
+  },
+  activeTabText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
   link: {
     color: '#4D7EF9',
     fontSize: hp('1.75%'),
-    fontFamily: "trebuc"
+    fontFamily: 'trebuc',
   },
   optionsRow: {
     flexDirection: 'row',
@@ -238,7 +283,7 @@ const styles = StyleSheet.create({
     fontSize: hp('1.75%'),
     color: '#555',
     marginLeft: wp('2%'),
-    fontFamily: "trebuc"
+    fontFamily: 'trebuc',
   },
   buttonRow: {
     flexDirection: 'row',
@@ -264,10 +309,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   checkbox: {
-
     marginRight: 8,
     borderRadius: 4,
-    left: 10
+    left: 10,
   },
-
 });

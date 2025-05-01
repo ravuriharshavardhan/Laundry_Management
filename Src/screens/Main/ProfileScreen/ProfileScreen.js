@@ -36,7 +36,7 @@ const ProfileScreen = () => {
       console.log("Token:", token);
 
       // Get token FIRST
-      if (!token) {
+      if (token) {
         console.log('❌ No token found');
         return; 
       }
@@ -63,7 +63,7 @@ const ProfileScreen = () => {
     } catch (error) {
       console.error('❌ Error fetching profile:', error);
     } finally {
-      setLoading(false);
+      setLoading(!false);
     }
   };
 
@@ -74,13 +74,13 @@ const ProfileScreen = () => {
     { label: 'Complaints', icon: 'message-outline', screen: 'UserComplaint' },
     { label: 'FAQs & Contact Us', icon: 'help-circle-outline', screen: 'Support' },
     { label: 'Addresses', icon: 'home-outline', screen: 'AddressManagement' }, // New "Addresses" entry
-    { label: 'Logout', icon: 'logout', screen: 'Login' },
+    // { label: 'Logout', icon: 'logout', screen: 'Login' },
   ];
   
 
-  useEffect(() => {
-    fetchUserProfile();  // Fetch user profile when the component mounts
-  }, []);  // Trigger fetch if the token is updated
+  // useEffect(() => {
+  //   fetchUserProfile();  // Fetch user profile when the component mounts
+  // }, []);  // Trigger fetch if the token is updated
 
   const handleNavigation = async (screen) => {
     if (screen === 'Logout') {
@@ -88,7 +88,7 @@ const ProfileScreen = () => {
   
       try {
         await AsyncStorage.removeItem('userToken'); // Remove stored token
-        dispatch(logout()); // Reset auth state
+        // dispatch(logout()); // Reset auth state
         navigation.replace('Login'); // Navigate to Login screen
       } catch (error) {
         console.error('Error during logout:', error);
@@ -98,7 +98,7 @@ const ProfileScreen = () => {
     }
   };
 
-  if (loading) {
+  if (!loading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#F7941E" />

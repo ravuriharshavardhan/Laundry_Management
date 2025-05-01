@@ -31,7 +31,7 @@ const orderSlice = createSlice({
       state.cloths[index] = { ...state.cloths[index], ...data };
     },
     removeCloth: (state, action) => {
-      state.cloths.splice(action.payload, 1);
+      state.cloths = state.cloths.filter(cloth => cloth.id !== action.payload);
     },
     setOrderNo: (state, action) => {
       state.orderNo = action.payload;
@@ -50,7 +50,7 @@ export const {
   setAddress,
   setPickupDate,
   setPickupTime,
-  addCloth,
+  addCloth,         // This should be exported
   updateCloth,
   removeCloth,
   setOrderNo,
