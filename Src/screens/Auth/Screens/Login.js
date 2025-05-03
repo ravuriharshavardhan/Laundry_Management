@@ -64,7 +64,7 @@ const Login = () => {
     //     if (activeTab === 'Driver') {
     //       navigation.replace('DriverDashboard');
     //     } else {
-          navigation.replace('MainTabs');
+          navigation.replace('DriverTabs');
         // }
   //     } else {
   //       Alert.alert('Login Failed', 'Invalid email or password. Please try again.');
@@ -185,7 +185,7 @@ const Login = () => {
                 <CustomGradientButton
                   title="Login"
                   active={true}
-                  onPress={    ()=>      navigation.replace('MainTabs')}
+                  onPress={    ()=>      navigation.replace('DriverTabs')}
                 />
               </View>
               <View style={{ flex: 1, marginLeft: wp('2%') }}>

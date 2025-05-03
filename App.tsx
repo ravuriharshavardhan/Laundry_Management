@@ -37,6 +37,14 @@ import ScheduleScreen from './Src/screens/Main/ScheduleScreen/ScheduleScreen';
 import HomeCare from './Src/screens/Info/HomeCare';
 import Ironing from './Src/screens/Info/Ironing';
 import CarpetCleaning from './Src/screens/Info/CarpetCleaning';
+import DriverDashBoard from './Src/screens/Driver/Screen/DriverDashBoard';
+import AssignmentScreen from './Src/screens/Driver/Screen/AssignmentScreen';
+import DriverReportScreen from './Src/screens/Driver/Screen/DriverReportScreen';
+import DeliveryOrders from './Src/screens/Driver/Screen/DriverOrdersScreen';
+import OrderListScreen from './Src/screens/Driver/Screen/OrderListScreen';
+import OrderDetailsScreen from './Src/screens/Driver/Screen/OrderDetailsScreen';
+import DeliveredOrders from './Src/screens/Driver/Screen/DeliveredOrders';
+import OrderDetails from './Src/screens/Driver/Screen/OrderDetailsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -94,9 +102,71 @@ const MainTabs = () => (
   </Tab.Navigator>
 );
 
+
+const DriverTabs = () => (
+  <Tab.Navigator
+    screenOptions={({ route }) => ({
+      tabBarStyle: {
+        backgroundColor: colors.BottomBarColor,
+        borderRadius: 50,
+        marginHorizontal: 21,
+        marginBottom: 20,
+        height: 60,
+        position: 'absolute',
+        elevation: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        paddingBottom: Platform.OS === 'ios' ? 10 : 25,
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '90%',
+      },
+      tabBarShowLabel: false,
+      headerShown: false,
+      tabBarIcon: ({ focused }) => {
+        const color = focused ? '#000' : '#fff';
+        switch (route.name) {
+          case 'DriverDashboard':
+            return <Ionicons name="grid-outline" size={28} color={color} />;
+          case 'DriverOrders':
+            return <MaterialIcon name="truck-delivery" size={28} color={color} />;
+          case 'DriverAssignment':
+            return <FontAwesome name="users" size={28} color={color} />;
+          case 'DriverReport':
+            return <AntDesign name="linechart" size={28} color={color} />;
+          default:
+            return <Ionicons name="ellipse" size={28} color={color} />;
+        }
+      },
+      tabBarHideOnKeyboard: true,
+      tabBarIconStyle: {
+   top:     10,
+      },
+    })}
+  >
+    <Tab.Screen name="DriverDashboard" component={DriverDashBoard} />
+    <Tab.Screen name="DriverOrders" component={DeliveryOrders} />
+    <Tab.Screen name="DriverAssignment" component={AssignmentScreen} />
+    <Tab.Screen name="DriverReport" component={DriverReportScreen} />
+  </Tab.Navigator>
+);
+
+const DeliveryStack = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="DriverTabs" component={DriverTabs} />
+    <Stack.Screen name="Login" component={Login} />
+    <Stack.Screen name="DeliveredOrders" component={DeliveredOrders} />
+    <Stack.Screen name="DeliveryOrders" component={DeliveryOrders} />
+    <Stack.Screen name="AssignedOrders" component={AssignmentScreen} />
+    <Stack.Screen name="OrderListScreen" component={OrderListScreen} />
+    <Stack.Screen name="OrderDetails" component={OrderDetails} />
+  </Stack.Navigator>
+);
+
 const AuthStack = () => (
   <Stack.Navigator screenOptions={{headerShown: false}}>
-    <Stack.Screen name="MainTabs" component={MainTabs} />
     <Stack.Screen name="Login" component={Login} />
     <Stack.Screen name="Signup" component={SignUp} />
     <Stack.Screen name="SignUp2" component={SignUp2} />
@@ -106,6 +176,7 @@ const AuthStack = () => (
     <Stack.Screen name="UsersListScreen" component={UsersListScreen} />
     <Stack.Screen name="ScheduleScreen" component={ScheduleScreen} />
     <Stack.Screen name="MyBookings" component={MyBookingScreen} />
+    <Stack.Screen name="DriverTabs" component={DriverTabs} />
     <Stack.Screen
       name="AddressManagement"
       component={AddressManagementScreen}
@@ -116,10 +187,12 @@ const AuthStack = () => (
     <Stack.Screen name="ironing" component={Ironing} />
     <Stack.Screen name="CarpetCleaning" component={CarpetCleaning} />
     <Stack.Screen name="RateListDetail" component={RatelistInfo} />
+    
   </Stack.Navigator>
 );
 const HomeStack = () => (
-  <Stack.Navigator screenOptions={{headerShown: false}}>
+  <Stack.Navigator initialRouteName='UsersListScreen' screenOptions={{headerShown: false}}>
+
     <Stack.Screen name="MainTabs" component={MainTabs} />
     <Stack.Screen name="MyBookings" component={MyBookingScreen} />
     <Stack.Screen name="UserComplaint" component={UserComplaint} />
@@ -130,7 +203,7 @@ const HomeStack = () => (
     <Stack.Screen name="Login" component={Login} />
     <Stack.Screen name="Signup" component={SignUp} />
     <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-    <Stack.Screen name="UsersListScreen" component={UsersListScreen} />
+
     <Stack.Screen
       name="AddressManagement"
       component={AddressManagementScreen}
@@ -146,13 +219,6 @@ const HomeStack = () => (
   </Stack.Navigator>
 );
 
-const DeliveryStack = () => (
-  <Stack.Navigator screenOptions={{headerShown: false}}>
-    <Stack.Screen name="UsersListScreen" component={UsersListScreen} />
-    <Stack.Screen name="Login" component={Login} />
-
-  </Stack.Navigator>
-);
 
 const AppNavigation = () => {
   const {isAuthenticated, user} = useSelector(state => state.auth);
