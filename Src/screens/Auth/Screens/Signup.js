@@ -1,3 +1,4 @@
+// SignUp.js
 import {
   Alert,
   Image,
@@ -8,15 +9,10 @@ import {
   View,
   ActivityIndicator,
 } from 'react-native';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { debounce } from 'lodash';
-import { useNavigation } from '@react-navigation/native';
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from 'react-native-responsive-screen';
+import React, {useCallback, useState} from 'react';
+import {useNavigation} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import CurvedCard from '../../../components/CurvedCard/CurvedCard';
 import colors from '../../../utils/colors';
 import fonts from '../../../utils/fonts';
 import CustomerInput from '../../../components/CustomInput/CustomInputA';
@@ -25,69 +21,52 @@ import CustomGradientButton from '../../../components/CustomGradientButton/Custo
 import CustomButton from '../../../components/CustomButton/CustomButton';
 import InfoCard from '../../../components/InfoCard/InfoCard';
 import TypeABackground from '../../../components/TypeABackground/TypeABackground';
-import { signupUser } from '../../../Apis/signupUser';
+import {signupUser} from '../../../Apis/signupUser';
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [Username, setUsername] = useState('');
-  const [MobileNumber, setMobileNumber] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
   const [remember, setRemember] = useState(false);
-  const [activeTab, setActiveTab] = useState(false);
+  const [role, setRole] = useState('Customer');
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
-  // Debounced console logging for each input
-  const debouncedLogger = useMemo(
-    () => debounce((label, value) => console.log(`${label}:`, value), 500),
-    []
-  );
-
-  useEffect(() => {
-    debouncedLogger('Username', Username);
-  }, [Username]);
-
-  useEffect(() => {
-    debouncedLogger('MobileNumber', MobileNumber);
-  }, [MobileNumber]);
-
-  useEffect(() => {
-    debouncedLogger('Email', email);
-  }, [email]);
-
-  useEffect(() => {
-    debouncedLogger('Password', password);
-  }, [password]);
-
   const handleRegister = useCallback(async () => {
-    if (!Username || !MobileNumber || !email || !password) {
+    if (!fullName || !mobileNumber || !email || !password) {
       Alert.alert('Missing Fields', 'Please fill out all fields.');
       return;
     }
-
+    const payload = {
+      fullName,
+      email,
+      password,
+      role,
+    };
+  
+    console.log('Signup payload:', payload);
+  
     try {
       setLoading(true);
-      const payload = {
-        fullname: Username,
-        email,
-        password,
-      };
-
-      console.log('Sending signup payload:', payload);
-
       const result = await signupUser(payload);
-
-      console.log('Signup success response:', result);
-      Alert.alert('Success', result.msg);
-      navigation.navigate('SignUp2');
-      setActiveTab('register');
+      console.log('Signup success:', result);
+  
+      await AsyncStorage.setItem('userInfo', JSON.stringify(result.user || payload));
+      if (result.token) {
+        await AsyncStorage.setItem('userToken', result.token);
+      }
+  
+      Alert.alert('Success', result.msg || 'Signup successful');
+      navigation.navigate('SignUp2', { email });  
     } catch (error) {
-      console.log('Signup error:', error);
-      Alert.alert('Error', error.msg || 'Signup failed');
+      console.error('Signup error:', error);
+      Alert.alert('Signup Error', error?.msg || 'Something went wrong');
     } finally {
       setLoading(false);
     }
-  }, [Username, MobileNumber, email, password, navigation]);
+  }, [fullName, mobileNumber, email, password, role, navigation]);
+  
 
   return (
     <ScrollView contentContainerStyle={styles.scrollView}>
@@ -97,13 +76,11 @@ const SignUp = () => {
             <ActivityIndicator size="large" color="#FFA717" />
           </View>
         )}
-
         <Image
           source={require('../../../../assets/Images/LoginImage.png')}
           resizeMode="contain"
           style={styles.image}
         />
-
         <View style={styles.contentContainer}>
           <InfoCard
             label="SignUp"
@@ -111,63 +88,75 @@ const SignUp = () => {
             highlight="Terms and Privacy Policy"
           />
 
-          <View style={{ marginVertical: 7, rowGap: 11 }}>
+          <View style={styles.tabContainer}>
+            <TouchableOpacity
+              style={[styles.tab, role === 'Customer' && styles.activeTab]}
+              onPress={() => setRole('Customer')}>
+              <Text
+                style={[
+                  styles.tabText,
+                  role === 'Customer' && styles.activeTabText,
+                ]}>
+                Customer
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tab, role === 'Delivery' && styles.activeTab]}
+              onPress={() => setRole('Delivery')}>
+              <Text
+                style={[
+                  styles.tabText,
+                  role === 'Delivery' && styles.activeTabText,
+                ]}>
+                Driver
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={{rowGap: 10}}>
             <CustomerInput
-              backgroundColor={'#fff'}
-              placeholder="Username"
-              value={Username}
-              onChangeText={setUsername}
+              placeholder="Full Name"
+              value={fullName}
+              onChangeText={setFullName}
+              backgroundColor="#fff"
             />
             <CustomerInput
-              backgroundColor={'#fff'}
               placeholder="Mobile Number"
-              value={MobileNumber}
+              value={mobileNumber}
               onChangeText={setMobileNumber}
+              backgroundColor="#fff"
             />
             <CustomerInput
-              backgroundColor={'#fff'}
-              iconColor={'#FFA717'}
-              placeholder="Email Address"
-              iconName="mail-outline"
+              placeholder="Email"
               value={email}
               onChangeText={setEmail}
+              backgroundColor="#fff"
             />
             <CustomerInput
-              backgroundColor={'#fff'}
-              iconColor={'#FFA717'}
               placeholder="Password"
-              iconName="lock-closed-outline"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
+              backgroundColor="#fff"
             />
           </View>
 
-          {/* <View style={styles.optionsRow}>
+          <View style={styles.optionsRow}>
             <CheckBox
               style={styles.checkbox}
-              value={remember}
-              onClick={() => setRemember(!remember)}
               isChecked={remember}
-              checkBoxColor="#fff"
-              onValueChange={setRemember}
-              tintColors={{ true: '#B4A8A8', false: '#B4A8A8' }}
+              onClick={() => setRemember(!remember)}
+              checkBoxColor="#FFA717"
             />
             <Text style={styles.rememberText}>Remember password</Text>
-            <TouchableOpacity style={{ marginLeft: 'auto' }}>
-              <Text style={styles.link}>Forgot password</Text>
-            </TouchableOpacity>
-          </View> */}
+          </View>
 
-          <View style={styles.buttonRow}>
-            <View style={{ flex: 1, marginLeft: 8 ,alignItems:"center"}}>
-              <CustomGradientButton
+          <View style={{justifyContent: 'center', alignItems: 'center', top: 10}}>
+            <CustomGradientButton
+              title="Register"
+              onPress={handleRegister}
               width={150}
-                title="Register"
-                active={activeTab === 'register'}
-                onPress={handleRegister}
-              />
-            </View>
+            />
           </View>
 
           <Text style={styles.connectText}>or connect with</Text>
@@ -176,13 +165,11 @@ const SignUp = () => {
             <CustomButton
               backgroundColor={'#fff'}
               title="Login with Google"
-              onPress={() => console.log('Pressed Google')}
               icon={require('../../../../assets/Images/GoogleLogo.png')}
             />
             <CustomButton
               backgroundColor={'#fff'}
               title="Login with Mail"
-              onPress={() => console.log('Pressed Mail')}
               icon={require('../../../../assets/Images/GmailLogo.png')}
             />
           </View>
@@ -195,57 +182,41 @@ const SignUp = () => {
 export default SignUp;
 
 const styles = StyleSheet.create({
-  scrollView: {
-    flexGrow: 1,
-    backgroundColor: '#fff',
-  },
-  image: {
-    width: '100%',
-    height: hp('20%'),
-    alignSelf: 'center',
-    marginVertical: hp('3%'),
-  },
-  contentContainer: {
-    paddingHorizontal: wp('5%'),
-    marginHorizontal: wp('6%'),
-  },
-  link: {
-    color: colors.secondtext,
-    fontSize: hp('1.75%'),
-  },
-  optionsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: hp('1.2%'),
-  },
-  rememberText: {
-    fontSize: hp('1.75%'),
-    color: colors.text,
-    marginLeft: wp('2%'),
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: hp('2.5%'),
-  },
+  scrollView: {flexGrow: 1, backgroundColor: '#fff'},
+  image: {width: '100%', height: 163, alignSelf: 'center', marginVertical: 30},
+  contentContainer: {paddingHorizontal: 20, marginHorizontal: 25},
+  optionsRow: {flexDirection: 'row', alignItems: 'center', marginTop: 16},
+  rememberText: {fontSize: 14, color: colors.text, marginLeft: 15},
+  checkbox: {width: 20, height: 20},
   connectText: {
     textAlign: 'center',
-    marginTop: hp('3%'),
-    marginBottom: hp('1.5%'),
+    marginTop: 25,
+    marginBottom: 10,
     color: '#747070',
     fontFamily: fonts.secondary,
   },
-  socialButtons: {
-    marginVertical: wp('1%'),
-    rowGap: wp('7%'),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  socialButtons: {gap: 20, alignItems: 'center', marginVertical: 20},
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(255,255,255,0.7)',
-    zIndex: 999,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  tabContainer: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: 20,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    backgroundColor: '#f2f2f2',
+    alignItems: 'center',
+  },
+  activeTab: {backgroundColor: '#FFA717'},
+  tabText: {fontSize: 16, color: '#333'},
+  activeTabText: {color: '#fff', fontWeight: 'bold'},
 });

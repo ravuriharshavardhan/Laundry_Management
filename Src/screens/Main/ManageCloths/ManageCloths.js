@@ -29,7 +29,7 @@ const ManageCloths = ({navigation}) => {
       Alert.alert('Error', 'Failed to fetch delivery orders.');
     } finally {
       setLoading(false);
-      setRefreshing(false); // also reset on manual refresh
+      setRefreshing(false);
     }
   };
   

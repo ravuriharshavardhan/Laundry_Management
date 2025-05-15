@@ -1,146 +1,183 @@
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Platform } from 'react-native';
-import React, { useState } from 'react';
-import LinearGradient from 'react-native-linear-gradient';
-import CustomerInput from '../../../components/CustomInput/CustomInputA';
-import { useNavigation } from '@react-navigation/native';
-import Entypo from 'react-native-vector-icons/Entypo';
-import fonts from '../../../utils/fonts';
-import TypeBBackground from '../../../components/BackgroundCard/TypeBBackground/TypeBBackground';
-import ImageSlider from '../../../ImageSlider/ImageSlider';
-import MainBackGround from '../../../components/BackgroundCard/MainBackGround';
-import CustomInput from '../../../components/CustomInput/CustomInputA';
+import React, { useState, useMemo } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  SafeAreaView,
+  TouchableOpacity,
+} from 'react-native';
+import ServiceCard from '../../../components/ServiceCard/ServiceCard';
+import CustomSearch from '../../../components/CustomInput/CustomSearch';
 
-const RatelistScreen = () => {
-  const navigation = useNavigation();
-  const [expandedGroups, setExpandedGroups] = useState({}); // Allow multiple groups
+const servicesData = [
+  {
+    title: 'Wash',
+    description: 'For everyday bedsheets, laundry, and towels.',
+    buttons: ['WASH', 'TUMBLE-DRY', 'IN A BAG'],
+    price: '1.95',
+    backgroundColor: '#FFEFB3',
+    image: require('../../../../assets/Icons/DryCleaning.png'),
+    screen: 'IronServicesScreen',
+  },
+  {
+    title: 'Ironing',
+    description: 'For items that are already clean.',
+    buttons: ['IRONING', 'ON HANGERS', 'IN A BAG'],
+    price: '1.95',
+    backgroundColor: '#F5F5F5',
+    image: require('../../../../assets/Icons/Ironbox.png'),
+    screen: 'IronServicesScreen',
+  },
+  {
+    title: 'Dry Clean',
+    description: 'Delicate fabrics and formalwear care.',
+    buttons: ['DRY CLEAN', 'NO STARCH', 'INDIVIDUAL'],
+    price: '3.50',
+    backgroundColor: '#E0F7FA',
+    image: require('../../../../assets/Icons/DryCleaning.png'),
+    screen: 'IronServicesScreen',
+  },
+  {
+    title: 'Shoe Cleaning',
+    description: 'Deep cleaning for all types of shoes.',
+    buttons: ['WASH', 'POLISH', 'DEODORIZE'],
+    price: '4.00',
+    backgroundColor: '#F0E4FF',
+    image: require('../../../../assets/Icons/shoes.png'),
+    screen: 'IronServicesScreen',
+  },
+];
 
-  const toggleGroup = (group) => {
-    setExpandedGroups((prev) => ({
-      ...prev,
-      [group]: !prev[group], // Toggle individual group
-    }));
+const getAllTags = (data) => {
+  const tagSet = new Set();
+  data.forEach(item => item.buttons.forEach(tag => tagSet.add(tag)));
+  return Array.from(tagSet);
+};
+
+const ServiceListScreen = ({ navigation }) => {
+  const [search, setSearch] = useState('');
+  const [selectedTag, setSelectedTag] = useState(null);
+
+  const tags = useMemo(() => getAllTags(servicesData), []);
+
+  const handleServicePress = (service) => {
+    if (service.screen) {
+      navigation.navigate(service.screen);
+    } else {
+      alert(`No screen defined for ${service.title}`);
+    }
   };
 
-  const handleServicePress = (serviceName) => {
-    navigation.navigate('RateListDetail');
-  };
+  const filteredServices = useMemo(() => {
+    return servicesData.filter(service => {
+      const matchesSearch = service.title.toLowerCase().includes(search.toLowerCase());
+      const matchesTag = selectedTag ? service.buttons.includes(selectedTag) : true;
+      return matchesSearch && matchesTag;
+    });
+  }, [search, selectedTag]);
 
-  const renderServiceGroup = (title, services, groupKey) => (
-    <View style={styles.groupContainer}>
-      <View style={styles.groupHeader}>
-        <TouchableOpacity onPress={() => toggleGroup(groupKey)}>
-          <Text style={styles.groupTitle}>{title}</Text>
+  const renderTagFilters = () => (
+    <View style={styles.tagsContainer}>
+      {tags.map((tag, idx) => (
+        <TouchableOpacity
+          key={idx}
+          style={[styles.tagButton, selectedTag === tag && styles.activeTagButton]}
+          onPress={() => setSelectedTag(tag === selectedTag ? null : tag)}
+        >
+          <Text style={[styles.tagText, selectedTag === tag && styles.activeTagText]}>
+            {tag}
+          </Text>
         </TouchableOpacity>
-        <Entypo
-          name={expandedGroups[groupKey] ? 'triangle-down' : 'triangle-down'}
-          size={20}
-          color={'#5F6368'}
-        />
-      </View>
-      {expandedGroups[groupKey] &&
-  services.map((service, index) => (
-    <CustomInput
-      key={`${groupKey}-${service}-${index}`} // ✅ Unique key
-      onPress={() => handleServicePress(service)}
-      backgroundColor={'#fff'}
-      placeholder={service}
-      disabled
-      iconComponent={<Entypo name="triangle-right" size={20} color="#5F6368" />}
-      width={320}
-    />
-  ))}
-
+      ))}
+      {selectedTag && (
+        <TouchableOpacity
+          style={[styles.tagButton, styles.clearTag]}
+          onPress={() => setSelectedTag(null)}
+        >
+          <Text style={styles.clearTagText}>Clear</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 
   return (
-    <LinearGradient colors={['#fff', '#fff']} start={{ x: 1, y: 0 }} end={{ x: 0, y: 0 }} style={{ flex: 1 }}>
-      <ImageSlider />
-      {Platform.OS === 'ios' ? (
-        <TypeBBackground>
-          <View style={styles.cardContainer}>
-            <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={true}>
-              <View style={{ marginHorizontal: 30 }}>
-                <Text style={styles.title}>Rate List</Text>
-
-                {renderServiceGroup(
-                  'Dry Cleaning',
-                  ['Dry Clean', 'Organic Dry Clean', 'Jacket Shoe and Bag'],
-                  'DryCleaning'
-                )}
-
-                {renderServiceGroup(
-                  'Washing Services',
-                  ['Wash & Iron', 'Wash & Fold', 'Specialized'],
-                  'WashingServices'
-                )}
-              </View>
-            </ScrollView>
+    <SafeAreaView style={styles.safeArea}>
+      <FlatList
+        data={filteredServices}
+        keyExtractor={(item, index) => index.toString()}
+        ListHeaderComponent={
+          <View>
+            <View style={styles.searchWrapper}>
+              <CustomSearch
+                width={'95%'}
+                backgroundColor="#fff"
+                placeholder="Search services..."
+                placeholderTextColor="#999"
+                value={search}
+                onChangeText={setSearch}
+              />
+            </View>
+            {renderTagFilters()}
           </View>
-        </TypeBBackground>
-      ) : (
-        <>
-          <View style={styles.cardContainer}>
-            <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={true}>
-              <View style={{ marginHorizontal: 30 }}>
-                <Text style={styles.title}>Rate List</Text>
-
-                {renderServiceGroup(
-                  'Dry Cleaning',
-                  ['Dry Clean', 'Organic Dry Clean', 'Jacket Shoe and Bag'],
-                  'DryCleaning'
-                )}
-
-                {renderServiceGroup(
-                  'Washing Services',
-                  ['Wash & Iron', 'Wash & Fold', 'Specialized'],
-                  'WashingServices'
-                )}
-              </View>
-            </ScrollView>
-          </View>
-        </>
-      )}
-    </LinearGradient>
+        }
+        renderItem={({ item }) => (
+          <ServiceCard {...item} onPress={() => handleServicePress(item)} />
+        )}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      />
+    </SafeAreaView>
   );
 };
 
-export default RatelistScreen;
+export default ServiceListScreen;
 
 const styles = StyleSheet.create({
-  cardContainer: {
-    marginTop: 200,
+  safeArea: {
     flex: 1,
-    elevation: 28,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
+    backgroundColor: '#fff',
   },
-  title: {
-    fontFamily: fonts.HomeLabel,
-    fontSize: 21,
-    textAlign: 'left',
-    padding: 25,
-    color: '#F7941E',
-    marginTop: 70,
+  contentContainer: {
+    paddingBottom: 50,
   },
-  groupContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    rowGap: 6,
+  searchWrapper: {
+    marginTop: 20,
+    marginHorizontal: 20,
+    marginBottom: 10,
   },
-  groupHeader: {
+  tagsContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    left: 20,
-    marginVertical: 10,
+    flexWrap: 'wrap',
+    paddingHorizontal: 20,
+    marginBottom: 15,
   },
-  groupTitle: {
-    fontFamily: 'Trebuchet-MS-Italic',
-    fontSize: 18,
+  tagButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#ddd',
+    borderRadius: 20,
     marginRight: 10,
-    color: '#000',
+    marginBottom: 10,
+  },
+  activeTagButton: {
+    backgroundColor: '#FFA717',
+  },
+  tagText: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 12,
+    color: '#333',
+  },
+  activeTagText: {
+    color: '#fff',
+    fontFamily: 'Poppins-SemiBold',
+  },
+  clearTag: {
+    backgroundColor: '#ff4d4d',
+  },
+  clearTagText: {
+    color: '#fff',
+    fontFamily: 'Poppins-Regular',
+    fontSize: 12,
   },
 });

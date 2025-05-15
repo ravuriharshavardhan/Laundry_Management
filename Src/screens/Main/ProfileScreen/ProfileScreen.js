@@ -28,34 +28,24 @@ const ProfileScreen = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    const loadUserProfile = async () => {
       try {
-        const token = await AsyncStorage.getItem('userToken');
-        if (!token) {
-          console.log('❌ No token found');
-          return;
-        }
-
-        const response = await axios.get(`${Config.API_BASE_URL}/api/Auth/user/profile`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response?.data?.fullName && response?.data?.email) {
-          setFullName(response.data.fullName);
-          setEmail(response.data.email);
-          await AsyncStorage.setItem('UserInfo', response.data.fullName);
-        }
+        const storedName = await AsyncStorage.getItem('UserInfo');
+        const storedEmail = await AsyncStorage.getItem('UserEmail'); // optional
+  
+        if (storedName) setFullName(storedName);
+        if (storedEmail) setEmail(storedEmail); // only if you have stored this
+  
       } catch (error) {
-        console.error('❌ Error fetching profile:', error);
+        console.error('❌ Error loading user info:', error);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchUserProfile();
+  
+    loadUserProfile();
   }, []);
+  
 
   const handleLogout = async () => {
     try {
@@ -83,7 +73,7 @@ const ProfileScreen = () => {
 
   return (
     <Wrapper>
-      <View style={{ marginHorizontal: 30, marginTop: Platform.OS === 'ios' ? 120 : 80 }}>
+      <View style={{ marginHorizontal: 30,}}>
         <Text
           style={{
             fontFamily: fonts.HomeLabel,
@@ -112,12 +102,12 @@ const ProfileScreen = () => {
           <Text style={styles.menuLabel}>My Bookings</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem} onPress={() => handleNavigate('2')}>
+        <TouchableOpacity style={styles.menuItem} onPress={() => handleNavigate('CustomerPayment')}>
           <Icon name="credit-card-outline" size={24} color="#F7941E" style={{ marginRight: 20 }} />
           <Text style={styles.menuLabel}>Payments</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem} onPress={() => handleNavigate('Coupons')}>
+        <TouchableOpacity style={styles.menuItem} onPress={() => handleNavigate('CouponsReferrals')}>
           <Icon name="ticket-percent-outline" size={24} color="#F7941E" style={{ marginRight: 20 }} />
           <Text style={styles.menuLabel}>Coupons & Referrals</Text>
         </TouchableOpacity>
@@ -127,7 +117,7 @@ const ProfileScreen = () => {
           <Text style={styles.menuLabel}>Complaints</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem} onPress={() => handleNavigate('Support')}>
+        <TouchableOpacity style={styles.menuItem} onPress={() => handleNavigate('FaqsContact')}>
           <Icon name="help-circle-outline" size={24} color="#F7941E" style={{ marginRight: 20 }} />
           <Text style={styles.menuLabel}>FAQs & Contact Us</Text>
         </TouchableOpacity>

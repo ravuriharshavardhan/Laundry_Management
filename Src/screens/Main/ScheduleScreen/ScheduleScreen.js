@@ -10,36 +10,17 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import CustomGradientButton from '../../../components/CustomGradientButton/CustomGradientButton';
 import { setAddress, setPickupDate, setPickupTime, setStatus } from '../../../Redux/Slice/AddClothSlice';
+import { submitOrder } from '../../../Apis/submitOrder';
 
 const deliveryTypes = [
-  {
-    id: 'COD',
-    label: 'Cash on Delivery',
-    image: 'https://img.icons8.com/fluency/96/money.png',
-  },
-  {
-    id: 'Prepaid',
-    label: 'Prepaid',
-    image: 'https://img.icons8.com/fluency/96/online-payment.png',
-  },
+  { id: 'COD', label: 'Cash on Delivery', image: 'https://img.icons8.com/fluency/96/money.png' },
+  { id: 'Prepaid', label: 'Prepaid', image: 'https://img.icons8.com/fluency/96/online-payment.png' },
 ];
 
 const paymentMethods = [
-  {
-    id: 'Cash',
-    label: 'Cash',
-    image: 'https://img.icons8.com/fluency/96/cash-in-hand.png',
-  },
-  {
-    id: 'UPI',
-    label: 'UPI',
-    image: 'https://img.icons8.com/fluency/96/upi.png',
-  },
-  {
-    id: 'Card',
-    label: 'Card',
-    image: 'https://img.icons8.com/fluency/96/bank-card-back-side.png',
-  },
+  { id: 'Cash', label: 'Cash', image: 'https://img.icons8.com/fluency/96/cash-in-hand.png' },
+  { id: 'UPI', label: 'UPI', image: 'https://img.icons8.com/fluency/96/upi.png' },
+  { id: 'Card', label: 'Card', image: 'https://img.icons8.com/fluency/96/bank-card-back-side.png' },
 ];
 
 const ScheduleScreen = ({ navigation }) => {
@@ -57,16 +38,13 @@ const ScheduleScreen = ({ navigation }) => {
         try {
           const storedAddress = await AsyncStorage.getItem('userAddress');
           const addressArray = storedAddress ? JSON.parse(storedAddress) : [];
-
           if (addressArray.length > 0) {
-            const latestAddress = addressArray[addressArray.length - 1];
-            dispatch(setAddress(latestAddress));
+            dispatch(setAddress(addressArray[addressArray.length - 1]));
           }
         } catch (e) {
-          console.error('Failed to load address from storage:', e);
+          console.error('Address load error:', e);
         }
       };
-
       getStoredAddress();
     }, [dispatch])
   );
@@ -81,7 +59,7 @@ const ScheduleScreen = ({ navigation }) => {
     setTimePickerVisible(false);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const orderData = {
       address: order.address,
       pickupDate: order.pickupDate,
@@ -92,63 +70,66 @@ const ScheduleScreen = ({ navigation }) => {
       total: order.price,
     };
 
-    dispatch(setStatus(order.price > 50 ? 'accepted' : 'rejected'));
-    console.log('Full Order JSON:', JSON.stringify(orderData, null, 2));
-    Alert.alert('Order Submitted', 'Your order has been submitted successfully!');
-    navigation.navigate('OrderSummaryScreen', { order: orderData });
+    try {
+      const response = await submitOrder(orderData);
+      dispatch(setStatus(order.price > 50 ? 'accepted' : 'rejected'));
+      Alert.alert('Success', 'Order placed successfully!');
+      navigation.navigate('OrderSummaryScreen', { order: response.order });
+    } catch (error) {
+      Alert.alert('Submission Error', error.message || 'Something went wrong.');
+    }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.header}>Schedule Your Dry Cleaning</Text>
+      <Text style={styles.title}>Schedule Pickup</Text>
 
-      {/* Address Section */}
+      {/* Address */}
       <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('AddAddressScreen')}>
-        <Icon name="location-on" size={20} color="#555" />
-        <View style={styles.addressCard}>
-          <Text style={styles.addressTitle}>Pickup Address</Text>
+        <Icon name="place" size={22} color="#555" />
+        <View style={styles.cardContent}>
+          <Text style={styles.cardLabel}>Pickup Address</Text>
           {order.address ? (
             <>
-              <Text>{order.address.fullName}</Text>
-              <Text>{order.address.phoneNumber}</Text>
-              <Text>{order.address.streetAddress}</Text>
-              <Text>{order.address.city}, {order.address.state} - {order.address.zipCode}</Text>
-              <Text>{order.address.country}</Text>
+              <Text style={styles.cardText}>{order.address.fullName} | {order.address.phoneNumber}</Text>
+              <Text style={styles.cardText}>{order.address.streetAddress}, {order.address.city}</Text>
+              <Text style={styles.cardText}>{order.address.state}, {order.address.zipCode}</Text>
+              <Text style={styles.cardText}>{order.address.country}</Text>
             </>
           ) : (
-            <Text>Tap to Add Address</Text>
+            <Text style={styles.cardHint}>Tap to add your address</Text>
           )}
         </View>
       </TouchableOpacity>
 
-      {/* Pickup Date & Time */}
-      <View style={styles.section}>
-        <Text style={styles.label}>Pickup Date</Text>
-        <TouchableOpacity style={styles.selectorButton} onPress={() => setDatePickerVisible(true)}>
-          <Icon name="calendar-today" size={20} color="#555" />
-          <Text style={styles.selectorText}>
+      {/* Date/Time */}
+      <View style={styles.pickerRow}>
+        <Text style={styles.sectionTitle}>Pickup Date</Text>
+        <TouchableOpacity style={styles.inputBox} onPress={() => setDatePickerVisible(true)}>
+          <Icon name="calendar-today" size={20} color="#888" />
+          <Text style={styles.inputText}>
             {order.pickupDate ? new Date(order.pickupDate).toLocaleDateString() : 'Select Date'}
           </Text>
         </TouchableOpacity>
 
-        <Text style={styles.label}>Pickup Time</Text>
-        <TouchableOpacity style={styles.selectorButton} onPress={() => setTimePickerVisible(true)}>
-          <Icon name="access-time" size={20} color="#555" />
-          <Text style={styles.selectorText}>
-            {order.pickupTime ? new Date(order.pickupTime).toLocaleTimeString() : 'Select Time'}
+        <Text style={styles.sectionTitle}>Pickup Time</Text>
+        <TouchableOpacity style={styles.inputBox} onPress={() => setTimePickerVisible(true)}>
+          <Icon name="access-time" size={20} color="#888" />
+          <Text style={styles.inputText}>
+            {order.pickupTime ? new Date(order.pickupTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Select Time'}
           </Text>
         </TouchableOpacity>
       </View>
 
       {/* Delivery Type */}
-      <Text style={styles.label}>Delivery Type</Text>
-      <View style={styles.optionRow}>
+      <Text style={styles.sectionTitle}>Delivery Type</Text>
+      <View style={styles.options}>
         {deliveryTypes.map((item) => (
           <TouchableOpacity
             key={item.id}
             style={[
-              styles.imageOption,
-              deliveryType === item.id && styles.imageOptionSelected
+              styles.optionBox,
+              deliveryType === item.id && styles.optionSelected,
             ]}
             onPress={() => setDeliveryType(item.id)}
           >
@@ -159,14 +140,14 @@ const ScheduleScreen = ({ navigation }) => {
       </View>
 
       {/* Payment Method */}
-      <Text style={styles.label}>Payment Method</Text>
-      <View style={styles.optionRow}>
+      <Text style={styles.sectionTitle}>Payment Method</Text>
+      <View style={styles.options}>
         {paymentMethods.map((item) => (
           <TouchableOpacity
             key={item.id}
             style={[
-              styles.imageOption,
-              paymentMethod === item.id && styles.imageOptionSelected
+              styles.optionBox,
+              paymentMethod === item.id && styles.optionSelected,
             ]}
             onPress={() => setPaymentMethod(item.id)}
           >
@@ -176,10 +157,11 @@ const ScheduleScreen = ({ navigation }) => {
         ))}
       </View>
 
-      {/* Submit Button */}
-      <CustomGradientButton title={'Submit Order'} onPress={handleSubmit} />
+      {/* Submit */}
+      <View style={{ marginTop: 30 }}>
+        <CustomGradientButton title="Submit Order" onPress={handleSubmit} />
+      </View>
 
-      {/* Date & Time Modals */}
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="date"
@@ -199,89 +181,102 @@ const ScheduleScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: '#F5F7FA',
+    paddingBottom: 40,
+    backgroundColor: '#F9FAFB',
   },
-  header: {
+  title: {
     fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 25,
+    fontFamily: 'Poppins-SemiBold',
+    marginBottom: 20,
+    color: '#222',
     textAlign: 'center',
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontFamily: 'Poppins-Medium',
+    marginTop: 20,
+    color: '#444',
   },
   card: {
     flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: '#fff',
-    padding: 14,
     borderRadius: 12,
-    marginVertical: 8,
-    elevation: 2,
+    padding: 16,
+    marginBottom: 10,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 1, height: 1 },
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 5,
+    elevation: 2,
   },
-  addressCard: {
-    marginLeft: 10,
+  cardContent: {
+    marginLeft: 12,
     flex: 1,
   },
-  addressTitle: {
-    fontWeight: '600',
-    marginBottom: 5,
-    fontSize: 16,
+  cardLabel: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 15,
+    color: '#222',
+    marginBottom: 4,
   },
-  section: {
-    marginVertical: 10,
+  cardText: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14,
+    color: '#555',
   },
-  label: {
-    marginTop: 20,
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 5,
-    color: '#333',
+  cardHint: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14,
+    color: '#AAA',
   },
-  selectorButton: {
+  pickerRow: {
+    marginTop: 12,
+  },
+  inputBox: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    padding: 12,
     borderRadius: 10,
-    elevation: 1,
-    marginVertical: 5,
+    padding: 12,
+    marginVertical: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
-  selectorText: {
+  inputText: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14,
     marginLeft: 10,
-    fontSize: 16,
     color: '#333',
   },
-  optionRow: {
+  options: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     marginTop: 10,
   },
-  imageOption: {
-    width: 100,
-    height: 120,
+  optionBox: {
     backgroundColor: '#fff',
+    width: '30%',
     borderRadius: 10,
+    paddingVertical: 12,
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 10,
-    elevation: 1,
+    elevation: 2,
   },
-  imageOptionSelected: {
-    borderColor: '#28a745',
+  optionSelected: {
+    borderColor: '#007BFF',
     borderWidth: 2,
-    elevation: 3,
+    backgroundColor: '#E6F0FF',
   },
   optionImage: {
-    width: 48,
-    height: 48,
+    width: 36,
+    height: 36,
     resizeMode: 'contain',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   optionLabel: {
-    fontSize: 14,
-    textAlign: 'center',
+    fontFamily: 'Poppins-Regular',
+    fontSize: 13,
     color: '#333',
+    textAlign: 'center',
   },
 });
 

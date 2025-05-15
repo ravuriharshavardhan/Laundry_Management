@@ -25,13 +25,13 @@ const CarpetCleaning = ({ navigation }) => {
   const [premiumQuantitiesByType, setPremiumQuantitiesByType] = useState({
     '1': {}, '2': {}, '3': {}, '4': {}
   });
-  const [searchQuery, setSearchQuery] = useState(''); 
+  const [searchQuery, setSearchQuery] = useState('');
   const [filteredClothes, setFilteredClothes] = useState([]);
   const [filteredPremium, setFilteredPremium] = useState([]);
 
   const dispatch = useDispatch();
 
-  const carpetCleaningTypes =  [
+  const carpetCleaningTypes = [
     {
       id: '1',
       name: 'Standard Carpet Cleaning',
@@ -141,8 +141,8 @@ const CarpetCleaning = ({ navigation }) => {
       { id: 'repair-burn', name: 'Burn Mark Repair', price: 20 },
     ],
   };
-  
-  const carpetPremiumServices ={
+
+  const carpetPremiumServices = {
     '1': [ // Standard Carpet Cleaning
       { id: 'cp1', title: 'Quick Drying', price: 8, description: 'Accelerated drying process to reduce wait time.' },
       { id: 'cp2', title: 'Fragrance Finish', price: 5, description: 'Leaves your carpet with a long-lasting fresh scent.' },
@@ -371,12 +371,12 @@ const CarpetCleaning = ({ navigation }) => {
         />
       </View>
 
-      <View style={{marginVertical:20}}>
-      <CustomSearch  backgroundColor={"#fff"}         placeholder="Search items..."       value={searchQuery}        onChangeText={setSearchQuery} />
+      <View style={{ marginVertical: 20 }}>
+        <CustomSearch backgroundColor={"#fff"} placeholder="Search items..." value={searchQuery} onChangeText={setSearchQuery} />
 
       </View>
 
-    
+
 
       {selectedType && (
         <>

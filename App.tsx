@@ -1,11 +1,11 @@
-import React, {useEffect, useState} from 'react';
-import {ActivityIndicator, View, StyleSheet, Platform} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {Provider, useSelector} from 'react-redux';
-import {PersistGate} from 'redux-persist/integration/react';
-import {store, persistor} from './Src/Redux/Store/Store';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, View, StyleSheet, Platform } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Provider, useSelector } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import { store, persistor } from './Src/Redux/Store/Store';
 
 // Icons
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -26,7 +26,6 @@ import AddCloths from './Src/screens/Main/ManageCloths/AddCloths';
 import UserListScreen from './Src/screens/Admin/UsersList/UsersListScreen';
 import RatelistInfo from './Src/screens/Main/RatelistScreen/RatelistInfo';
 import UserComplaint from './Src/screens/Main/UserComplaint/UserComplaint';
-import UsersListScreen from './Src/screens/Admin/UsersList/UsersListScreen';
 import AddressManagementScreen from './Src/screens/Main/AddressManagementScreen/AddressManagementScreen';
 import AddAddressScreen from './Src/screens/Main/AddressManagementScreen/AddAddressScreen';
 import OrderInfoScreen from './Src/screens/Main/ManageCloths/OrderInfoScreen';
@@ -42,9 +41,21 @@ import AssignmentScreen from './Src/screens/Driver/Screen/AssignmentScreen';
 import DriverReportScreen from './Src/screens/Driver/Screen/DriverReportScreen';
 import DeliveryOrders from './Src/screens/Driver/Screen/DriverOrdersScreen';
 import OrderListScreen from './Src/screens/Driver/Screen/OrderListScreen';
-import OrderDetailsScreen from './Src/screens/Driver/Screen/OrderDetailsScreen';
-import DeliveredOrders from './Src/screens/Driver/Screen/DeliveredOrders';
-import OrderDetails from './Src/screens/Driver/Screen/OrderDetailsScreen';
+import OrderDetails from './Src/screens/Driver/Screen/OrderDetails';
+import DeliveryProfileScreen from './Src/screens/Driver/Screen/DeliveryProfileScreen';
+import DeliveryPreferencesScreen from './Src/screens/Driver/Screen/DeliveryPreferences';
+import AccountSettingsScreen from './Src/screens/Driver/Screen/AccountSettingsScreen';
+import IdentificationVerificationScreen from './Src/screens/Driver/Screen/IdentificationVerificationScreen';
+import PaymentDetailsScreen from './Src/screens/Driver/Screen/PaymentDetails';
+import SupportAndDocumentsScreen from './Src/screens/Driver/Screen/SupportAndDocumentsScreen';
+import UsersListScreen from './Src/screens/Admin/UsersList/UsersListScreen';
+import CustomerPayment from './Src/screens/Info/CustomerPayment/CustomerPayment';
+import CouponsReferralsScreen from './Src/screens/Main/CouponsReferrals/CouponsReferrals';
+import FaqsContactScreen from './Src/screens/Main/FaqsContactScreen/FaqsContactScreen';
+import SearchScreen from './Src/screens/Main/SearchScreen/SearchScreen';
+import ServicesScreen from './Src/screens/Main/ServicesScreen/ServicesScreen';
+import IronServicesScreen from './Src/screens/Main/ServicesScreen/ServicesScreen';
+
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -55,7 +66,7 @@ const colors = {
 
 const MainTabs = () => (
   <Tab.Navigator
-    screenOptions={({route}) => ({
+    screenOptions={({ route }) => ({
       tabBarStyle: {
         backgroundColor: colors.BottomBarColor,
         borderRadius: 50,
@@ -65,7 +76,7 @@ const MainTabs = () => (
         position: 'absolute',
         elevation: 10,
         shadowColor: '#000',
-        shadowOffset: {width: 0, height: 4},
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
         paddingBottom: Platform.OS === 'ios' ? 10 : 25,
@@ -76,13 +87,11 @@ const MainTabs = () => (
       },
       tabBarShowLabel: false,
       headerShown: false,
-      tabBarIcon: ({focused}) => {
+      tabBarIcon: ({ focused }) => {
         const color = focused ? '#000' : '#fff';
         switch (route.name) {
           case 'Calendar':
-            return (
-              <MaterialIcon name="calendar-month" size={30} color={color} />
-            );
+            return <MaterialIcon name="calendar-month" size={30} color={color} />;
           case 'Cart':
             return <AntDesign name="shoppingcart" size={30} color={color} />;
           case 'Payments':
@@ -94,14 +103,14 @@ const MainTabs = () => (
         }
       },
       tabBarHideOnKeyboard: true,
-    })}>
+    })}
+  >
     <Tab.Screen name="Calendar" component={SchedulePickUpScreen} />
-    <Tab.Screen name="Cart" component={ManageCloths} />
+    {/* <Tab.Screen name="Cart" component={ManageCloths} /> */}
     <Tab.Screen name="Payments" component={Ratelist} />
     <Tab.Screen name="Profile" component={ProfileScreen} />
   </Tab.Navigator>
 );
-
 
 const DriverTabs = () => (
   <Tab.Navigator
@@ -142,7 +151,7 @@ const DriverTabs = () => (
       },
       tabBarHideOnKeyboard: true,
       tabBarIconStyle: {
-   top:     10,
+        top: 10,
       },
     })}
   >
@@ -157,16 +166,19 @@ const DeliveryStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name="DriverTabs" component={DriverTabs} />
     <Stack.Screen name="Login" component={Login} />
-    <Stack.Screen name="DeliveredOrders" component={DeliveredOrders} />
-    <Stack.Screen name="DeliveryOrders" component={DeliveryOrders} />
     <Stack.Screen name="AssignedOrders" component={AssignmentScreen} />
     <Stack.Screen name="OrderListScreen" component={OrderListScreen} />
+    <Stack.Screen name="DriverDashboard" component={DriverDashBoard} />
+    <Stack.Screen name="UsersListScreen" component={UsersListScreen} />
+    <Stack.Screen name="DriverReport" component={DriverReportScreen} />
     <Stack.Screen name="OrderDetails" component={OrderDetails} />
+    <Stack.Screen name="AccountSettingsScreen" component={AccountSettingsScreen} />
   </Stack.Navigator>
 );
 
 const AuthStack = () => (
-  <Stack.Navigator screenOptions={{headerShown: false}}>
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+
     <Stack.Screen name="Login" component={Login} />
     <Stack.Screen name="Signup" component={SignUp} />
     <Stack.Screen name="SignUp2" component={SignUp2} />
@@ -177,22 +189,38 @@ const AuthStack = () => (
     <Stack.Screen name="ScheduleScreen" component={ScheduleScreen} />
     <Stack.Screen name="MyBookings" component={MyBookingScreen} />
     <Stack.Screen name="DriverTabs" component={DriverTabs} />
-    <Stack.Screen
-      name="AddressManagement"
-      component={AddressManagementScreen}
-    />
+    <Stack.Screen name="AddressManagement" component={AddressManagementScreen} />
     <Stack.Screen name="AddAddressScreen" component={AddAddressScreen} />
     <Stack.Screen name="OrderSummaryScreen" component={OrderInfoScreen} />
     <Stack.Screen name="HomeCare" component={HomeCare} />
     <Stack.Screen name="ironing" component={Ironing} />
     <Stack.Screen name="CarpetCleaning" component={CarpetCleaning} />
     <Stack.Screen name="RateListDetail" component={RatelistInfo} />
-    
+    <Stack.Screen name="PersonalInfoScreen" component={DeliveryProfileScreen} />
+    <Stack.Screen name="DeliveryPreferencesScreen" component={DeliveryPreferencesScreen} />
+    <Stack.Screen name="AccountSettingsScreen" component={AccountSettingsScreen} />
+    <Stack.Screen name="IDVerificationScreen" component={IdentificationVerificationScreen} />
+    <Stack.Screen name="PaymentDetailsScreen" component={PaymentDetailsScreen} />
+    <Stack.Screen name="SupportDocumentsScreen" component={SupportAndDocumentsScreen} />
+    <Stack.Screen name="CustomerPayment" component={CustomerPayment} />
+    <Stack.Screen name="AssignedOrders" component={AssignmentScreen} />
+    <Stack.Screen name="OrderListScreen" component={OrderListScreen} />
+    <Stack.Screen name="DriverDashboard" component={DriverDashBoard} />
+    <Stack.Screen name="DriverReport" component={DriverReportScreen} />
+    <Stack.Screen name="OrderDetails" component={OrderDetails} />
+    <Stack.Screen name="CouponsReferrals" component={CouponsReferralsScreen} />
+    <Stack.Screen name="CompanyDetailScreen" component={LaundryDetailScreen} />
+    <Stack.Screen name="SearchScreen" component={SearchScreen} />
+    <Stack.Screen name="IronServicesScreen" component={IronServicesScreen} />
+    <Stack.Screen name="ServicesScreen" component={ServicesScreen} />
+    <Stack.Screen name="MainTabs" component={MainTabs} />
+    <Stack.Screen name="UserComplaint" component={UserComplaint} />
+    <Stack.Screen name="FaqsContact" component={FaqsContactScreen} />
   </Stack.Navigator>
 );
-const HomeStack = () => (
-  <Stack.Navigator initialRouteName='UsersListScreen' screenOptions={{headerShown: false}}>
 
+const HomeStack = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name="MainTabs" component={MainTabs} />
     <Stack.Screen name="MyBookings" component={MyBookingScreen} />
     <Stack.Screen name="UserComplaint" component={UserComplaint} />
@@ -200,28 +228,54 @@ const HomeStack = () => (
     <Stack.Screen name="UserListScreen" component={UserListScreen} />
     <Stack.Screen name="RateListDetail" component={RatelistInfo} />
     <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+    <Stack.Screen name="CouponsReferrals" component={CouponsReferralsScreen} />
     <Stack.Screen name="Login" component={Login} />
     <Stack.Screen name="Signup" component={SignUp} />
+    <Stack.Screen name="FaqsContact" component={FaqsContactScreen} />
+    <Stack.Screen name="CustomerPayment" component={CustomerPayment} />
     <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-
-    <Stack.Screen
-      name="AddressManagement"
-      component={AddressManagementScreen}
-    />
+    <Stack.Screen name="AddressManagement" component={AddressManagementScreen} />
     <Stack.Screen name="AddAddressScreen" component={AddAddressScreen} />
     <Stack.Screen name="OrderSummaryScreen" component={OrderInfoScreen} />
     <Stack.Screen name="LaundryDetail" component={LaundryDetailScreen} />
     <Stack.Screen name="DryCleaning" component={DryCleaning} />
     <Stack.Screen name="HomeCare" component={HomeCare} />
     <Stack.Screen name="ironing" component={Ironing} />
+    <Stack.Screen name="SignUp2" component={SignUp2} />
+    <Stack.Screen name="DriverTabs" component={DriverTabs} />
+    <Stack.Screen name="AssignedOrders" component={AssignmentScreen} />
+    <Stack.Screen name="OrderListScreen" component={OrderListScreen} />
+    <Stack.Screen name="DriverDashboard" component={DriverDashBoard} />
+    <Stack.Screen name="DriverReport" component={DriverReportScreen} />
+    <Stack.Screen name="OrderDetails" component={OrderDetails} />
+    <Stack.Screen name="UsersListScreen" component={UsersListScreen} />
     <Stack.Screen name="CarpetCleaning" component={CarpetCleaning} />
     <Stack.Screen name="ScheduleScreen" component={ScheduleScreen} />
+    <Stack.Screen name="PersonalInfoScreen" component={DeliveryProfileScreen} />
+    <Stack.Screen name="DeliveryPreferencesScreen" component={DeliveryPreferencesScreen} />
+    <Stack.Screen name="AccountSettingsScreen" component={AccountSettingsScreen} />
+    <Stack.Screen name="IDVerificationScreen" component={IdentificationVerificationScreen} />
+    <Stack.Screen name="PaymentDetailsScreen" component={PaymentDetailsScreen} />
+    <Stack.Screen name="SupportDocumentsScreen" component={SupportAndDocumentsScreen} />
+    <Stack.Screen name="CompanyDetailScreen" component={LaundryDetailScreen} />
+    <Stack.Screen name="SearchScreen" component={SearchScreen} />
+    <Stack.Screen name="ServicesScreen" component={ServicesScreen} />
+    <Stack.Screen name="IronServicesScreen" component={IronServicesScreen} />
+    
   </Stack.Navigator>
 );
 
-
 const AppNavigation = () => {
-  const {isAuthenticated, user} = useSelector(state => state.auth);
+  const { isAuthenticated, user } = useSelector(state => state.auth);
+
+  const [isDelivery, setIsDelivery] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated !== null && user) {
+      const isDeliveryUser = user.email === '99210041731@klu.ac.in' && user.role === 'Delivery';
+      setIsDelivery(isDeliveryUser);
+    }
+  }, [isAuthenticated, user]);
 
   if (isAuthenticated === null) {
     return (
@@ -231,16 +285,14 @@ const AppNavigation = () => {
     );
   }
 
-  const isDelivery =
-    user?.email === '99210041731@klu.ac.in' && user?.role === 'Delivery';
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
           isDelivery ? (
             <Stack.Screen name="Delivery" component={DeliveryStack} />
           ) : (
-            <Stack.Screen name="Home" component={HomeStack} />
+            <Stack.Screen name="MainTabs" component={HomeStack} />
           )
         ) : (
           <Stack.Screen name="Auth" component={AuthStack} />
@@ -260,12 +312,13 @@ const App = () => {
   );
 };
 
-export default App;
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#fff',
   },
 });
+
+export default App;

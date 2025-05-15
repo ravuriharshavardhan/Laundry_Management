@@ -1,90 +1,240 @@
-import React from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons'; // Importing the Material Icons
 
-const laundryOrders = [
-  { id: '1', customer: 'John Doe', orderStatus: 'Pickup Scheduled', pickupTime: '2:00 PM', items: 5 },
-  { id: '2', customer: 'Jane Smith', orderStatus: 'In Progress', pickupTime: '10:30 AM', items: 3 },
-  { id: '3', customer: 'Michael Johnson', orderStatus: 'Delivered', pickupTime: '1:00 PM', items: 2 },
-  { id: '4', customer: 'Sara Lee', orderStatus: 'Pending', pickupTime: '4:00 PM', items: 7 },
-];
+const OrderTabs = () => {
+  const [orderDetails] = useState({
+    id: 'ORD1240',
+    status: 'In Progress',
+    customer: {
+      name: 'Priya Sharma',
+      phone: '+91 98765 43210',
+      address: '456 Park Avenue, Andheri West, Mumbai, Pin: 400053',
+    },
+    pickupLocation: {
+      name: 'Sparkle Clean Laundry',
+      phone: '+91 98765 12345',
+      address: '123 Main Street, Bandra East, Mumbai, Pin: 400051',
+    },
+    serviceType: 'Delicate Care',
+    items: [
+      { id: 'silk', name: 'Silk Dress', quantity: 1, price: 12, serviceType: 'Delicate Care' },
+      { id: 'lace', name: 'Lace Top', quantity: 2, price: 10, serviceType: 'Delicate Care' },
+      { id: 'chiffon', name: 'Chiffon Blouse', quantity: 1, price: 11, serviceType: 'Delicate Care' },
+    ],
+    premiumServices: [
+      { id: 'p11', title: 'Soft Finish', price: 6, description: 'Extra softener for delicate fabrics.' },
+      { id: 'p12', title: 'Hand Wash', price: 8, description: 'Gentle hand wash by textile experts.' },
+    ],
+    payment: {
+      method: 'Online Payment',
+      subtotal: 43,
+      premiumServices: 14,
+      deliveryFee: 5,
+      total: 62,
+      status: 'Paid',
+    },
+    timeline: [
+      { time: '12:30 PM', status: 'Order Placed' },
+      { time: '12:45 PM', status: 'Laundry Accepted' },
+      { time: '01:15 PM', status: 'Pickup Assigned to You' },
+      { time: '01:20 PM', status: 'You Accepted Pickup' },
+    ],
+    deliveryInstructions: 'Please call when you arrive. The security guard will let you in. Apartment 502.',
+    deliveryDate: 'May 7, 2025',
+    deliveryTime: '5:00 PM - 7:00 PM',
+  });
 
-const DriverOrdersScreen = () => {
-  const renderOrderItem = ({ item }) => (
-    <View style={styles.orderCard}>
-      <Text style={styles.orderText}><Text style={styles.bold}>Order ID:</Text> {item.id}</Text>
-      <Text style={styles.orderText}><Text style={styles.bold}>Customer:</Text> {item.customer}</Text>
-      <Text style={styles.orderText}><Text style={styles.bold}>Status:</Text> {item.orderStatus}</Text>
-      <Text style={styles.orderText}><Text style={styles.bold}>Pickup Time:</Text> {item.pickupTime}</Text>
-      <Text style={styles.orderText}><Text style={styles.bold}>Items:</Text> {item.items}</Text>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>View Details</Text>
-      </TouchableOpacity>
-    </View>
-  );
+  const [activeTab, setActiveTab] = useState('accepted'); // Default tab is 'accepted'
+
+  const acceptedOrders = [orderDetails];
+  const cancelledOrders = [
+    {
+      ...orderDetails,
+      status: 'Cancelled',
+      timeline: [...orderDetails.timeline, { time: '03:00 PM', status: 'Order Cancelled' }],
+    },
+  ];
+
+  const renderOrderDetails = (orders) => {
+    return orders.map((order, index) => (
+      <View key={index} style={styles.orderCard}>
+        <View style={styles.orderHeader}>
+          <View style={[styles.statusIndicator, order.status === 'Cancelled' ? styles.pendingIndicator : styles.progressIndicator]} />
+          <Text style={styles.orderStatus}>{order.status}</Text>
+        </View>
+        <View style={styles.orderDetails}>
+          <Text style={styles.orderTask}>Customer: {order.customer.name}</Text>
+          <Text style={styles.orderTask}>Items:</Text>
+          {order.items.map((item, idx) => (
+            <Text key={idx} style={styles.orderTask}>
+              {item.name} - {item.quantity} x ₹{item.price}
+            </Text>
+          ))}
+          <Text style={styles.orderTask}>Total: ₹{order.payment.total}</Text>
+        </View>
+        <View style={styles.actionBar}>
+          {/* New action buttons related to laundry */}
+          <TouchableOpacity style={[styles.secondaryButton, styles.detailsButton]}>
+            <Icon name="info" size={20} color="#FFFFFF" />
+            <Text style={styles.secondaryButtonText}>View Details</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.secondaryButton, styles.requestPickupButton]}>
+            <Icon name="local-shipping" size={20} color="#FFFFFF" />
+            <Text style={styles.secondaryButtonText}>Request Pickup</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.secondaryButton, styles.markCompletedButton]}>
+            <Icon name="check-circle" size={20} color="#FFFFFF" />
+            <Text style={styles.secondaryButtonText}>Mark as Completed</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    ));
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Laundry Orders</Text>
-      <FlatList
-        contentContainerStyle={{ paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}
-        data={laundryOrders}
-        keyExtractor={(item) => item.id}
-        renderItem={renderOrderItem}
-      />
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Order Management</Text>
+      </View>
+
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === 'accepted' && styles.activeTab]}
+          onPress={() => setActiveTab('accepted')}
+        >
+          <Text style={[styles.tabText, activeTab === 'accepted' && styles.activeTabText]}>Accepted Orders</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === 'cancelled' && styles.activeTab]}
+          onPress={() => setActiveTab('cancelled')}
+        >
+          <Text style={[styles.tabText, activeTab === 'cancelled' && styles.activeTabText]}>Cancelled Orders</Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView style={styles.ordersList}>
+        {activeTab === 'accepted'
+          ? renderOrderDetails(acceptedOrders)
+          : renderOrderDetails(cancelledOrders)}
+      </ScrollView>
     </View>
   );
 };
 
-export default DriverOrdersScreen;
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  container: { flex: 1, backgroundColor: '#F7F8FA' },
 
-    padding: 16,
-  },
-  header: {
+  headerText: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#F49905',
-    marginBottom: 16,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    fontFamily: 'Poppins-Bold',
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    marginBottom: 20,
+    borderBottomWidth: 2,
+    borderBottomColor: '#e0e0e0',
+    marginHorizontal: 16,
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 12,
+    backgroundColor: '#e0e0e0',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 4,
+  },
+  activeTab: {
+    backgroundColor: '#FF9800', // Pink to make it stand out
+  },
+  tabText: {
+    fontSize: 16,
+    color: '#424242',
+    fontFamily: 'Poppins-SemiBold',
+  },
+  activeTabText: {
+    color: '#ffffff',
+  },
+  ordersList: {
+    flex: 1,
+    marginBottom: 20,
   },
   orderCard: {
-    backgroundColor: '#fff',
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     marginBottom: 16,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
   },
-  orderText: {
-    color: '#000',
-    fontSize: 16,
-    marginBottom: 8,
-  },
-  bold: {
-    fontWeight: 'bold',
-  },
-  button: {
-    backgroundColor: '#F49905',
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    marginTop: 12,
+  orderHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 12,
   },
-  buttonText: {
-    fontSize: 16,
-    color: '#121212',
-    fontWeight: 'bold',
+  statusIndicator: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 10,
+  },
+  pendingIndicator: {
+    backgroundColor: '#FF4081', // Pink for pending orders
+  },
+  progressIndicator: {
+    backgroundColor: '#4CAF50', // Green for active orders
+  },
+  orderStatus: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#424242',
+    fontFamily: 'Poppins-SemiBold',
+  },
+  orderDetails: { marginBottom: 16 },
+  orderTask: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#616161',
+    marginBottom: 6,
+    fontFamily: 'Poppins-Regular',
+  },
+  actionBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  secondaryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    width: '30%',
+    justifyContent: 'center',  // Centering the text and icon
+  },
+  detailsButton: {
+    backgroundColor: '#3F51B5', // Blue for details
+  },
+  // requestPickupButton: {
+  //   backgroundColor: '#FF9800', // Orange for request pickup
+  // },
+  markCompletedButton: {
+    backgroundColor: '#4CAF50', // Green for completed
+  },
+  secondaryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 7,
+    fontWeight: '600',
+    fontFamily: 'Poppins-SemiBold',
+
   },
 });
+
+export default OrderTabs;

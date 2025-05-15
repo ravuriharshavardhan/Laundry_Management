@@ -6,6 +6,7 @@ import { combineReducers } from 'redux';
 import authReducer from '../Slice/authSlice';
 import orderReducer from '../Slice/AddClothSlice';
 import InfoOrderReducer from '../Slice/orderSlice';
+import favoritesReducer from '../Slice/favoritesSlice'
 
 
 
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   order: orderReducer, 
   auth: authReducer,
   InfoOrder: InfoOrderReducer,
+  favorites: favoritesReducer,
 
 });
 

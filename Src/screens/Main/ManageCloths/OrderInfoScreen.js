@@ -1,15 +1,22 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const OrderSummaryScreen = ({ route }) => {
+const OrderSummaryScreen = ({route}) => {
   const order = route.params?.order;
 
-  const formatDate = (isoDate) =>
-    new Date(isoDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const formatDate = isoDate =>
+    new Date(isoDate).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
 
-  const formatTime = (isoTime) =>
-    new Date(isoTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const formatTime = isoTime =>
+    new Date(isoTime).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -31,7 +38,8 @@ const OrderSummaryScreen = ({ route }) => {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Pickup Details</Text>
         <Text style={styles.text}>
-          <Icon name="calendar-today" size={16} /> {formatDate(order.pickupDate)}
+          <Icon name="calendar-today" size={16} />{' '}
+          {formatDate(order.pickupDate)}
         </Text>
         <Text style={styles.text}>
           <Icon name="access-time" size={16} /> {formatTime(order.pickupTime)}
@@ -50,7 +58,9 @@ const OrderSummaryScreen = ({ route }) => {
         <Text style={styles.cardTitle}>Clothing Items</Text>
         {order.cloths.map((item, index) => (
           <View key={index} style={styles.itemRow}>
-            <Text style={styles.text}>{item.name} x {item.quantity}</Text>
+            <Text style={styles.text}>
+              {item.name} x {item.quantity}
+            </Text>
             <Text style={styles.text}>Rs.{item.price}</Text>
           </View>
         ))}

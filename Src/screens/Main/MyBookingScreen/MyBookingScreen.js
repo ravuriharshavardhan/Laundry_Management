@@ -1,32 +1,30 @@
 import React, { useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import axios from 'axios'; // Importing Axios
 import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { fetchOrders } from '../../../Apis/fetchOrders'; // Your custom fetch function, or you can replace with axios directly
 
 const Orders = () => {
   const [activeTab, setActiveTab] = useState('Scheduled');
   const [orders, setOrders] = useState([]);
 
+  // Fetch orders when the screen comes into focus using Axios
   useFocusEffect(
     useCallback(() => {
-      const fetchOrders = async () => {
+      const fetchAllOrders = async () => {
         try {
-          const data = await AsyncStorage.getItem('orders');
-          const allOrders = data ? JSON.parse(data) : [];
-          setOrders(allOrders);
+          const response = await axios.get('http://192.168.1.3:3000/api/orders/orders');
+          console.log(response.data);
+
+          setOrders(response.data); // Assuming the response contains the orders in response.data
         } catch (err) {
           console.error('Error loading orders:', err);
+          Alert.alert('Error', err.message); // Displaying error alert
         }
       };
-      fetchOrders();
+
+      fetchAllOrders();
     }, [])
   );
 
@@ -66,29 +64,47 @@ const Orders = () => {
                     order.status === 'Scheduled'
                       ? 'time-outline'
                       : order.status === 'Delivered' || order.status === 'Completed'
-                      ? 'checkmark-circle-outline'
-                      : 'close-circle-outline'
+                        ? 'checkmark-circle-outline'
+                        : 'close-circle-outline'
                   }
                   size={22}
                   color={
                     order.status === 'Scheduled'
                       ? '#FFA717'
                       : order.status === 'Delivered' || order.status === 'Completed'
-                      ? 'green'
-                      : 'red'
+                        ? 'green'
+                        : 'red'
                   }
                 />
               </View>
-              <Text style={styles.statusText}>Status: {order.status}</Text>
-              <Text style={styles.sectionTitle}>Service: {order.serviceType}</Text>
 
-              <Text style={styles.sectionTitle}>Clothing Items</Text>
+              {/* Address Details */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Address:</Text>
+                <Text style={styles.itemText}>
+                  {order.address.fullName}, {order.address.streetAddress}, {order.address.city}, {order.address.state}, {order.address.zipCode}, {order.address.country}
+                </Text>
+                <Text style={styles.itemText}>Phone: {order.address.phoneNumber}</Text>
+              </View>
+
+              {/* Pickup and Payment Details */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Pickup Details:</Text>
+                <Text style={styles.itemText}>Pickup Date: {new Date(order.pickupDate).toLocaleDateString()}</Text>
+                <Text style={styles.itemText}>Pickup Time: {new Date(order.pickupTime).toLocaleTimeString()}</Text>
+                <Text style={styles.itemText}>Delivery Type: {order.deliveryType}</Text>
+                <Text style={styles.itemText}>Payment Method: {order.paymentMethod}</Text>
+              </View>
+
+              {/* Clothing Items */}
+              <Text style={styles.sectionTitle}>Clothing Items:</Text>
               {order.cloths.map((item, idx) => (
                 <Text key={idx} style={styles.itemText}>
-                  - {item.name} x{item.quantity} (Rs.{item.price})
+                  - {item.name} x{item.quantity} ({item.CleaningType}) (Rs.{item.price})
                 </Text>
               ))}
 
+              {/* Total */}
               <Text style={styles.total}>Total: Rs.{order.total}</Text>
             </View>
           ))
@@ -166,16 +182,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     color: '#333',
   },
-  statusText: {
-    fontFamily: 'Poppins-Regular',
-    marginTop: 4,
-    marginBottom: 8,
-    color: '#666',
+  section: {
+    marginTop: 8,
   },
   sectionTitle: {
     fontFamily: 'Poppins-Medium',
-    marginTop: 8,
     color: '#444',
+    marginTop: 8,
   },
   itemText: {
     fontFamily: 'Poppins-Regular',

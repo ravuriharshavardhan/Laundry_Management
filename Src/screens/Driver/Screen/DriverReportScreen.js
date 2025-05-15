@@ -1,125 +1,118 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  SafeAreaView,
-  Alert,
-  Dimensions,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome'; // Importing FontAwesome icons
-
-const { width } = Dimensions.get('window');
-
-// Dummy performance data
-const dummyReport = [
-  {
-    id: '1',
-    date: '2025-05-01',
-    deliveries: 12,
-    onTime: 10,
-    late: 2,
-    codCollected: 1340,
-  },
-  {
-    id: '2',
-    date: '2025-05-02',
-    deliveries: 15,
-    onTime: 14,
-    late: 1,
-    codCollected: 890,
-  },
-  {
-    id: '3',
-    date: '2025-05-03',
-    deliveries: 8,
-    onTime: 6,
-    late: 2,
-    codCollected: 420,
-  },
-];
+import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
+import React from 'react';
+import { useNavigation } from '@react-navigation/native';
+import CustomGradientButton from '../../../components/CustomGradientButton/CustomGradientButton';
+import CustomButton from '../../../components/CustomButton/CustomButton';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const DriverReportScreen = () => {
-  const [report, setReport] = useState(dummyReport);
+  const navigation = useNavigation();
 
-  const getTotalCOD = () =>
-    report.reduce((total, item) => total + item.codCollected, 0);
-
-  const getTotalDeliveries = () =>
-    report.reduce((total, item) => total + item.deliveries, 0);
-
-  const handleAutoAssign = () => {
-    Alert.alert('Auto-Assign', 'Auto-assignment triggered based on workload');
+  const deliveryPerson = {
+    name: 'Alex Smith',
+    phone: '+1 987 654 321',
+    image: 'https://via.placeholder.com/100',
   };
 
-  const handleManualAssign = () => {
-    Alert.alert('Manual Assign', 'Redirect to manual assignment screen');
+  const handleSignOut = () => {
+    // Ideally call logout API or Redux reset here too
+    navigation.navigate('Login');
   };
-
-  const handleEditProfile = () => {
-    Alert.alert('Edit Profile', 'Redirect to profile editing screen');
-  };
-
-  const renderItem = ({ item }) => (
-    <View style={styles.card}>
-      <Text style={[styles.date, { fontFamily: 'Poppins-SemiBold' }]}>{item.date}</Text>
-      <Text style={{ fontFamily: 'Poppins-Regular' }}>Deliveries: {item.deliveries}</Text>
-      <Text style={{ fontFamily: 'Poppins-Regular' }}>On-Time: {item.onTime}</Text>
-      <Text style={{ fontFamily: 'Poppins-Regular' }}>Late: {item.late}</Text>
-      <Text style={{ fontFamily: 'Poppins-Regular' }}>COD Collected: ₹{item.codCollected}</Text>
-    </View>
-  );
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Profile Section */}
-      <View style={styles.profileSection}>
-        <View style={styles.profileDetails}>
-          <Text style={[styles.profileName, { fontFamily: 'Poppins-SemiBold' }]}>John Doe</Text>
-          <Text style={[styles.profilePhone, { fontFamily: 'Poppins-Regular' }]}>+91 123 456 7890</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.header}>Driver Delivery Report</Text>
+
+      {/* Delivery Person Info */}
+      <View style={styles.agentCard}>
+        <Image source={{ uri: deliveryPerson.image }} style={styles.agentImage} />
+        <View style={{ marginLeft: 12 }}>
+          <Text style={styles.agentName}>{deliveryPerson.name}</Text>
+          <Text style={styles.agentPhone}>{deliveryPerson.phone}</Text>
         </View>
-        <TouchableOpacity onPress={handleEditProfile}>
-          <Icon name="edit" size={20} color="#F49905" />
-        </TouchableOpacity>
       </View>
 
-      {/* Driver Report */}
-      <Text style={[styles.header, { fontFamily: 'Poppins-SemiBold' }]}>Driver Weekly Report</Text>
-
-      <View style={styles.summary}>
-        <Text style={[styles.summaryText, { fontFamily: 'Poppins-Regular' }]}>
-          Total Deliveries: {getTotalDeliveries()}
-        </Text>
-        <Text style={[styles.summaryText, { fontFamily: 'Poppins-Regular' }]}>
-          Total COD Collected: ₹{getTotalCOD()}
-        </Text>
+      {/* List of Settings Buttons */}
+      <View style={styles.buttonList}>
+        <CustomButton
+          width="100%"
+          height="12%"
+          title={
+            <View style={styles.buttonWithIcon}>
+              <Icon name="account" size={20} color="#333" />
+              <Text style={styles.buttonTitle}>Personal Information</Text>
+            </View>
+          }
+          backgroundColor="#fff"
+          onPress={() => navigation.navigate('PersonalInfoScreen')}
+        />
+        <CustomButton
+          width="100%"
+          height="12%"
+          title={
+            <View style={styles.buttonWithIcon}>
+              <Icon name="truck" size={20} color="#333" />
+              <Text style={styles.buttonTitle}>Delivery Preferences</Text>
+            </View>
+          }
+          backgroundColor="#fff"
+          onPress={() => navigation.navigate('DeliveryPreferencesScreen')}
+        />
+        <CustomButton
+          width="100%"
+          height="12%"
+          title={
+            <View style={styles.buttonWithIcon}>
+              <Icon name="credit-card" size={20} color="#333" />
+              <Text style={styles.buttonTitle}>Payment Details</Text>
+            </View>
+          }
+          backgroundColor="#fff"
+          onPress={() => navigation.navigate('PaymentDetailsScreen')}
+        />
+        <CustomButton
+          width="100%"
+          height="12%"
+          title={
+            <View style={styles.buttonWithIcon}>
+              <Icon name="check-circle" size={20} color="#333" />
+              <Text style={styles.buttonTitle}>Identification & Verification</Text>
+            </View>
+          }
+          backgroundColor="#fff"
+          onPress={() => navigation.navigate('IDVerificationScreen')}
+        />
+        <CustomButton
+          width="100%"
+          height="12%"
+          title={
+            <View style={styles.buttonWithIcon}>
+              <Icon name="file-document" size={20} color="#333" />
+              <Text style={styles.buttonTitle}>Support & Documents</Text>
+            </View>
+          }
+          backgroundColor="#fff"
+          onPress={() => navigation.navigate('SupportDocumentsScreen')}
+        />
+        <CustomButton
+          width="100%"
+          height="12%"
+          title={
+            <View style={styles.buttonWithIcon}>
+              <Icon name="store-settings" size={20} color="#333" />
+              <Text style={styles.buttonTitle}>Account Settings</Text>
+            </View>
+          }
+          backgroundColor="#fff"
+          onPress={() => navigation.navigate('AccountSettingsScreen')}
+        />
       </View>
 
-      <FlatList
-        data={report}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 100 }}
-      />
-
-      {/* Buttons for Assignment */}
-      {/* <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[styles.button, { backgroundColor: '#F49905' }]}
-          onPress={handleManualAssign}
-        >
-          <Text style={[styles.buttonText, { fontFamily: 'Poppins-SemiBold' }]}>Manual Assign</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, { backgroundColor: '#000' }]}
-          onPress={handleAutoAssign}
-        >
-          <Text style={[styles.buttonText, { fontFamily: 'Poppins-SemiBold', color: '#fff' }]}>Auto Assign</Text>
-        </TouchableOpacity>
-      </View> */}
-    </SafeAreaView>
+      {/* Sign Out Button */}
+      <View style={styles.signButtonContainer}>
+        <CustomGradientButton title="Sign Out" onPress={handleSignOut} />
+      </View>
+    </ScrollView>
   );
 };
 
@@ -127,77 +120,54 @@ export default DriverReportScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#F2F2F2',
     padding: 16,
-  },
-  profileSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 16,
-    elevation: 3,
-  },
-  profileDetails: {
-    flexDirection: 'column',
-  },
-  profileName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  profilePhone: {
-    fontSize: 14,
-    color: '#888',
+    paddingBottom: 40,
+    backgroundColor: '#f4f4f4',
   },
   header: {
     fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 12,
-  },
-  summary: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 16,
+    fontWeight: '700',
     marginBottom: 16,
-    elevation: 3,
+    color: '#333',
   },
-  summaryText: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 6,
-  },
-  card: {
-    backgroundColor: '#FFF',
+  agentCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
     padding: 14,
-    borderRadius: 10,
-    marginVertical: 6,
+    borderRadius: 12,
+    marginBottom: 24,
     elevation: 2,
   },
-  date: {
-    fontWeight: 'bold',
+  agentImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#ccc',
+  },
+  agentName: {
     fontSize: 16,
-    marginBottom: 6,
+    fontWeight: '600',
+    color: '#333',
   },
-  buttonContainer: {
-    position: 'absolute',
-
-    left: 16,
-    right: 16,
+  agentPhone: {
+    fontSize: 14,
+    color: '#555',
+  },
+  buttonList: {
+    gap: 20,
+    marginBottom: 30,
+  },
+  signButtonContainer: {
+    marginTop: 40,
+  },
+  buttonWithIcon: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-
-  },
-  button: {
-    width: (width - 48) / 2,
-    padding: 12,
-    borderRadius: 10,
     alignItems: 'center',
   },
-  buttonText: {
-    fontWeight: 'bold',
-    fontSize: 14,
+  buttonTitle: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: '#333',
   },
 });

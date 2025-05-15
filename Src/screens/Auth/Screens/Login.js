@@ -8,9 +8,8 @@ import {
   TouchableOpacity,
   View,
   Modal,
-  Alert,
 } from 'react-native';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import debounce from 'lodash.debounce';
 import CustomerInput from '../../../components/CustomInput/CustomInputA';
 import CheckBox from 'react-native-check-box';
@@ -47,35 +46,50 @@ const Login = () => {
     console.log('Password input changed:', val);
   }, 300), []);
 
+  // Handle login logic asynchronously
+  const handleLogin = useCallback(async () => {
+    if (!email || !password) {
+      alert('Please fill in both email and password');
+      return;
+    }
+  
+    setLoading(true);
+    try {
+      const payload = { email, password, role: activeTab };
+      console.log('Attempting to login with:', payload);
+  
+      // const response = await loginUser(payload);
 
-    // if (email || password) {
-    //   Alert.alert("Missing Fields", "Please fill in both email and password.");
-    //   return;
-    // }
-    // setLoading(true);
-    // try {
-    //   const payload = { email, password, role: activeTab };
-    //   console.log('Attempting to login with credentials:', payload);
-    //   const result = await loginUser(payload);
-    //   console.log('Login result received:', result);
-    //   if (result?.token) {
-    //     await AsyncStorage.setItem('userToken', result.token);
-    //     dispatch(loginSuccess({ token: result.token, user: result.user }));
-    //     if (activeTab === 'Driver') {
-    //       navigation.replace('DriverDashboard');
-    //     } else {
-          navigation.replace('DriverTabs');
-        // }
-  //     } else {
-  //       Alert.alert('Login Failed', 'Invalid email or password. Please try again.');
-  //     }
-  //   } catch (error) {
-  //     console.error('Login Error:', error);
-  //     Alert.alert('Error', 'Something went wrong during login.');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }, [email, password, activeTab, dispatch, navigation]);
+      if (activeTab === 'Driver' && email === 'driver@example.com') {
+        navigation.replace('DriverTabs');
+      } else if (activeTab === 'User' && email === 'user@example.com') {
+        navigation.replace('MainTabs');
+      } else {
+        // Fallback navigation if specific email checks aren't required
+        navigation.replace('MainTabs');
+      }
+  
+      if (response.token && response.user) {
+        // await AsyncStorage.setItem('userToken', response.token);
+        // dispatch(loginSuccess({ token: response.token, user: response.user }));
+  
+        // Navigate based on role or email
+    
+      } else {
+        // alert(response.msg || 'Login failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Login Error:', error);
+      // alert(error?.msg || 'Something went wrong during login.');
+    } finally {
+      setLoading(false);
+    }
+  }, [email, password, activeTab, dispatch, navigation]);
+  
+  // Demo Credentials Function
+
+  
+  
 
   const handleRegister = useCallback(() => {
     navigation.navigate('Signup');
@@ -185,7 +199,7 @@ const Login = () => {
                 <CustomGradientButton
                   title="Login"
                   active={true}
-                  onPress={    ()=>      navigation.replace('DriverTabs')}
+                  onPress={handleLogin} // Use handleLogin instead of navigation
                 />
               </View>
               <View style={{ flex: 1, marginLeft: wp('2%') }}>
@@ -206,7 +220,7 @@ const Login = () => {
                 onPress={() => console.log('Google Login button pressed')}
                 icon={require('../../../../assets/Images/GoogleLogo.png')}
               />
-              <CustomButton
+              <CustomButton 
                 backgroundColor="#fff"
                 title="Login with Mail"
                 onPress={() => console.log('Mail Login button pressed')}
@@ -249,7 +263,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     marginBottom: hp('2%'),
-    
   },
   tab: {
     flex: 1,

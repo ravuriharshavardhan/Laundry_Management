@@ -8,16 +8,17 @@ import {
   Image,
   Alert,
   FlatList,
-  TextInput
+  StatusBar,
+  SafeAreaView
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { addCloth, setPrice, setStatus } from '../../Redux/Slice/AddClothSlice';
 import { useDispatch } from 'react-redux';
+import { addCloth, setPrice, setStatus } from '../../Redux/Slice/AddClothSlice';
 import uuid from 'react-native-uuid';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomSearch from '../../components/CustomInput/CustomSearch';
 
-const CarpetCleaning = ({ navigation }) => {
+const LaundryService = ({ navigation }) => {
   const [selectedType, setSelectedType] = useState(null);
   const [clothQuantitiesByType, setClothQuantitiesByType] = useState({
     '1': {}, '2': {}, '3': {}, '4': {}
@@ -25,185 +26,109 @@ const CarpetCleaning = ({ navigation }) => {
   const [premiumQuantitiesByType, setPremiumQuantitiesByType] = useState({
     '1': {}, '2': {}, '3': {}, '4': {}
   });
-  const [searchQuery, setSearchQuery] = useState(''); 
+  const [searchQuery, setSearchQuery] = useState('');
   const [filteredClothes, setFilteredClothes] = useState([]);
   const [filteredPremium, setFilteredPremium] = useState([]);
 
   const dispatch = useDispatch();
 
-  const dryCleaningTypes = [
+  const laundryServiceTypes = [
     {
       id: '1',
-      name: 'Standard Clean',
-      image: 'https://img.icons8.com/color/96/laundry.png',
-      description: 'Basic dry cleaning for everyday wear.',
+      name: 'Regular Wash',
+      image: 'https://img.icons8.com/color/96/washing-machine.png',
+      description: 'Standard washing for everyday clothes',
     },
     {
       id: '2',
-      name: 'Delicate Care',
-      image: 'https://img.icons8.com/color/96/washing-machine.png',
-      description: 'For fabrics like silk, chiffon, or lace.',
+      name: 'Dry Clean',
+      image: 'https://img.icons8.com/color/96/laundry.png',
+      description: 'For delicate fabrics and formal wear',
     },
     {
       id: '3',
-      name: 'Luxury Garments',
+      name: 'Premium Care',
       image: 'https://img.icons8.com/color/96/clothes.png',
-      description: 'Tailored for designer and branded clothing.',
+      description: 'For luxury and designer clothing',
     },
     {
       id: '4',
-      name: 'Wedding & Ethnic',
+      name: 'Specialty',
       image: 'https://img.icons8.com/color/96/indian-sari.png',
-      description: 'For bridal wear, sherwanis, and ethnic dresses.',
-    },
-    {
-      id: '5',
-      name: 'Express Service',
-      image: 'https://img.icons8.com/color/96/fast-cart.png',
-      description: 'Quick turnaround with same-day or next-day delivery.',
-    },
-    {
-      id: '6',
-      name: 'Eco-Friendly',
-      image: 'https://img.icons8.com/color/96/recycle.png',
-      description: 'Uses organic solvents & minimal water for cleaning.',
-    },
-    {
-      id: '7',
-      name: 'Curtain Cleaning',
-      image: 'https://img.icons8.com/color/96/curtain.png',
-      description: 'Special cleaning and deodorizing of curtains.',
-    },
-    {
-      id: '8',
-      name: 'Leather Care',
-      image: 'https://img.icons8.com/color/96/leather-jacket.png',
-      description: 'Restores and softens leather garments.',
-    },
-    {
-      id: '9',
-      name: 'Fur Care',
-      image: 'https://img.icons8.com/color/96/fur-coat.png',
-      description: 'Special treatment for fur and shearling garments.',
-    },
-    {
-      id: '10',
-      name: 'Luxury Care',
-      image: 'https://img.icons8.com/color/96/diamond.png',
-      description: 'Tailored care for high-end designer garments.',
+      description: 'For special garments and ethnic wear',
     },
   ];
-  
 
   const clothesWithPrices = {
     '1': [
-      { id: 'shirt', name: 'Cotton Shirt', price: 5 },
-      { id: 'pants', name: 'Formal Pants', price: 7 },
-      { id: 'tshirt', name: 'T-Shirt', price: 4 },
-      { id: 'jeans', name: 'Jeans', price: 6 },
-      { id: 'blouse', name: 'Silk Blouse', price: 8 },
-      { id: 'suit', name: 'Business Suit', price: 15 },
-      { id: 'skirt', name: 'A-Line Skirt', price: 6 },
-      { id: 'jacket', name: 'Winter Jacket', price: 20 },
-      { id: 'hoodie', name: 'Hoodie', price: 9 },
-      { id: 'shorts', name: 'Denim Shorts', price: 5 },
+      { id: 'shirt', name: 'T-Shirt', price: 4 },
+      { id: 'pants', name: 'Casual Pants', price: 6 },
+      { id: 'jeans', name: 'Jeans', price: 5 },
+      { id: 'shorts', name: 'Shorts', price: 3 },
+      { id: 'socks', name: 'Socks (Pair)', price: 2 },
+      { id: 'pajamas', name: 'Pajama Set', price: 7 },
+      { id: 'bedsheet', name: 'Bed Sheet', price: 10 },
+      { id: 'pillowcase', name: 'Pillow Cover', price: 3 },
     ],
     '2': [
-      { id: 'silk', name: 'Silk Dress', price: 12 },
-      { id: 'lace', name: 'Lace Top', price: 10 },
-      { id: 'chiffon', name: 'Chiffon Blouse', price: 11 },
-      { id: 'silk-scarf', name: 'Silk Scarf', price: 8 },
-      { id: 'blouse', name: 'Chiffon Blouse', price: 9 },
-      { id: 'dress', name: 'Satin Dress', price: 15 },
-      { id: 'top', name: 'Cotton Top', price: 7 },
-      { id: 'kimono', name: 'Silk Kimono', price: 18 },
-      { id: 'lingerie', name: 'Lace Lingerie', price: 5 },
-      { id: 'nightgown', name: 'Silk Nightgown', price: 12 },
+      { id: 'dshirt', name: 'Formal Shirt', price: 8 },
+      { id: 'dpants', name: 'Formal Pants', price: 9 },
+      { id: 'blazer', name: 'Blazer', price: 15 },
+      { id: 'suit', name: 'Suit (2pc)', price: 20 },
+      { id: 'sweater', name: 'Sweater', price: 12 },
+      { id: 'jacket', name: 'Light Jacket', price: 14 },
+      { id: 'tie', name: 'Tie', price: 5 },
     ],
     '3': [
-      { id: 'suit', name: 'Designer Suit', price: 20 },
-      { id: 'coat', name: 'Luxury Coat', price: 18 },
-      { id: 'wool', name: 'Wool Sweater', price: 14 },
-      { id: 'blazer', name: 'Formal Blazer', price: 16 },
-      { id: 'vest', name: 'V-neck Vest', price: 8 },
-      { id: 'pashmina', name: 'Pashmina Shawl', price: 10 },
-      { id: 'scarf', name: 'Cashmere Scarf', price: 7 },
-      { id: 'overcoat', name: 'Trench Coat', price: 25 },
-      { id: 'jacket', name: 'Leather Jacket', price: 30 },
-      { id: 'sweater', name: 'Cashmere Sweater', price: 22 },
+      { id: 'pshirt', name: 'Designer Shirt', price: 12 },
+      { id: 'pdress', name: 'Luxury Dress', price: 18 },
+      { id: 'pcoat', name: 'Luxury Coat', price: 25 },
+      { id: 'pleather', name: 'Leather Jacket', price: 30 },
+      { id: 'pcashmere', name: 'Cashmere Sweater', price: 22 },
+      { id: 'psilk', name: 'Silk Garment', price: 20 },
+      { id: 'pscarf', name: 'Designer Scarf', price: 15 },
     ],
     '4': [
+      { id: 'sari', name: 'Saree', price: 20 },
       { id: 'lehenga', name: 'Lehenga', price: 25 },
-      { id: 'sari', name: 'Sari', price: 20 },
       { id: 'sherwani', name: 'Sherwani', price: 30 },
-      { id: 'kurta', name: 'Kurta', price: 18 },
-      { id: 'dupattas', name: 'Dupatta', price: 8 },
-      { id: 'churidar', name: 'Churidar', price: 15 },
-      { id: 'anarkali', name: 'Anarkali', price: 28 },
-      { id: 'pajama', name: 'Ethnic Pajama', price: 12 },
-      { id: 'suit', name: 'Sherwani Set', price: 35 },
-      { id: 'choli', name: 'Choli', price: 18 },
+      { id: 'kurta', name: 'Kurta', price: 12 },
+      { id: 'dupatta', name: 'Dupatta', price: 8 },
+      { id: 'curtains', name: 'Curtains (per piece)', price: 18 },
+      { id: 'carpet', name: 'Carpet (per sqm)', price: 25 },
+      { id: 'quilt', name: 'Heavy Quilt', price: 22 },
     ],
   };
-  
+
   const premiumServices = {
     '1': [
-      { id: 'p1', title: 'Stain Removal', price: 5, description: 'Advanced enzyme treatment.' },
-      { id: 'p2', title: 'Fragrance Finish', price: 3, description: 'Mild and lasting scent added post-clean.' },
-      { id: 'p3', title: 'Extra Softening', price: 7, description: 'Ultra-soft finish for delicate fabrics.' },
-      { id: 'p4', title: 'Gentle Wash', price: 6, description: 'Hand-wash with gentle detergents.' },
-      { id: 'p5', title: 'Waterproofing', price: 10, description: 'Adds waterproof coating to fabrics.' },
-      { id: 'p6', title: 'Color Restoration', price: 8, description: 'Restores faded color to garments.' },
-      { id: 'p7', title: 'Mildew Treatment', price: 4, description: 'Removes mildew and odors.' },
-      { id: 'p8', title: 'Fur Care', price: 15, description: 'Special cleaning for fur items.' },
-      { id: 'p9', title: 'Anti-Wrinkle', price: 5, description: 'Reduces wrinkles and creases in garments.' },
-      { id: 'p10', title: 'Re-waterproofing', price: 12, description: 'Adds protective waterproofing layer.' },
+      { id: 'p1', title: 'Stain Treatment', price: 5, description: 'Special treatment for tough stains' },
+      { id: 'p2', title: 'Fabric Softener', price: 3, description: 'Extra softness for your clothes' },
+      { id: 'p3', title: 'Extra Rinse', price: 4, description: 'Additional rinse cycle for sensitive skin' },
     ],
     '2': [
-      { id: 'p11', title: 'Soft Finish', price: 6, description: 'Extra softener for delicate fabrics.' },
-      { id: 'p12', title: 'Hand Wash', price: 8, description: 'Gentle hand wash by textile experts.' },
-      { id: 'p13', title: 'Fabric Softening', price: 5, description: 'Makes fabrics extra soft and fresh.' },
-      { id: 'p14', title: 'Anti-Pilling Treatment', price: 7, description: 'Prevents fabric pilling and fuzzing.' },
-      { id: 'p15', title: 'Thread Repair', price: 4, description: 'Repairs minor tears and loose threads.' },
-      { id: 'p16', title: 'Water Stain Removal', price: 6, description: 'Removes all water-based stains.' },
-      { id: 'p17', title: 'Premium Hand Ironing', price: 7, description: 'Delicate hand ironing for sensitive fabrics.' },
-      { id: 'p18', title: 'Scented Finish', price: 5, description: 'Adds a premium, long-lasting scent.' },
-      { id: 'p19', title: 'UV Protection', price: 12, description: 'Adds UV protection to your garments.' },
-      { id: 'p20', title: 'Embroidery Protection', price: 8, description: 'Prevents damage to embroidered items.' },
+      { id: 'p4', title: 'Eco-friendly Clean', price: 7, description: 'Using organic solvents' },
+      { id: 'p5', title: 'Express Service', price: 8, description: 'Same-day turnaround' },
+      { id: 'p6', title: 'Wrinkle Shield', price: 5, description: 'Anti-wrinkle treatment' },
     ],
     '3': [
-      { id: 'p21', title: 'Fabric Protection', price: 10, description: 'Adds a protective layer to prevent wear.' },
-      { id: 'p22', title: 'Luxury Ironing', price: 5, description: 'Precision steaming and wrinkle guard.' },
-      { id: 'p23', title: 'Leather Conditioning', price: 15, description: 'Restores shine and softness to leather.' },
-      { id: 'p24', title: 'Anti-Bacterial Treatment', price: 7, description: 'Removes bacteria and allergens.' },
-      { id: 'p25', title: 'Luxury Wrapping', price: 20, description: 'Special packaging for luxury garments.' },
-      { id: 'p26', title: 'Deep Cleaning', price: 12, description: 'Thorough deep cleaning of items.' },
-      { id: 'p27', title: 'Bead & Crystal Care', price: 18, description: 'Specialized care for beaded & sequined garments.' },
-      { id: 'p28', title: 'Moth Repellent', price: 6, description: 'Protects fabrics from moth damage.' },
-      { id: 'p29', title: 'Odor Removal', price: 5, description: 'Eliminates stubborn odors from fabric.' },
-      { id: 'p30', title: 'Premium Stain Treatment', price: 8, description: 'Advanced stain removal for tough stains.' },
+      { id: 'p7', title: 'Premium Packaging', price: 6, description: 'Luxury garment bag and hanger' },
+      { id: 'p8', title: 'Fabric Restoration', price: 12, description: 'Revitalizes fabric color and texture' },
+      { id: 'p9', title: 'Button Replacement', price: 5, description: 'Replace missing buttons' },
     ],
     '4': [
-      { id: 'p31', title: 'Ornament Handling', price: 12, description: 'Careful handling of embroidery & stones.' },
-      { id: 'p32', title: 'Scented Packing', price: 6, description: 'Wrapped in premium scented paper.' },
-      { id: 'p33', title: 'Luxury Touch-Up', price: 9, description: 'Perfect touch-up for your wedding attire.' },
-      { id: 'p34', title: 'Custom Fit', price: 15, description: 'Custom tailoring for your garments.' },
-      { id: 'p35', title: 'Ethnic Wear Care', price: 10, description: 'Special care for ethnic fabrics and stitching.' },
-      { id: 'p36', title: 'Bead Repair', price: 6, description: 'Repairing damaged beads or embellishments.' },
-      { id: 'p37', title: 'Full Protection', price: 25, description: 'Full coverage and protection of luxury garments.' },
-      { id: 'p38', title: 'Luxury Drying', price: 14, description: 'Drying at controlled temperatures.' },
-      { id: 'p39', title: 'Stitching Service', price: 5, description: 'Stitch repairs for minor tears.' },
-      { id: 'p40', title: 'Crystal Embellishment Care', price: 10, description: 'Gentle handling of decorative pieces.' },
+      { id: 'p10', title: 'Embellishment Care', price: 12, description: 'Special care for beads and sequins' },
+      { id: 'p11', title: 'Handwash Service', price: 15, description: 'Gentle handwashing for delicate items' },
+      { id: 'p12', title: 'Steam Press', price: 8, description: 'Professional steam pressing' },
     ],
   };
 
   useEffect(() => {
-    const defaultType = dryCleaningTypes.find((type) => type.id === '1');
+    const defaultType = laundryServiceTypes.find((type) => type.id === '1');
     setSelectedType(defaultType);
   }, []);
 
   useEffect(() => {
-
     if (selectedType) {
       const clothes = clothesWithPrices[selectedType.id]?.filter(cloth =>
         cloth.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -211,7 +136,6 @@ const CarpetCleaning = ({ navigation }) => {
       const premium = premiumServices[selectedType.id]?.filter(service =>
         service.title.toLowerCase().includes(searchQuery.toLowerCase())
       ) || [];
-
       setFilteredClothes(clothes);
       setFilteredPremium(premium);
     }
@@ -267,7 +191,6 @@ const CarpetCleaning = ({ navigation }) => {
 
   const getTotal = () => {
     let total = 0;
-
     Object.keys(clothQuantitiesByType).forEach(typeId => {
       const clothItems = clothesWithPrices[typeId] || [];
       clothItems.forEach(item => {
@@ -275,7 +198,6 @@ const CarpetCleaning = ({ navigation }) => {
         total += qty * item.price;
       });
     });
-
     Object.keys(premiumQuantitiesByType).forEach(typeId => {
       const premiumItems = premiumServices[typeId] || [];
       premiumItems.forEach(item => {
@@ -283,7 +205,6 @@ const CarpetCleaning = ({ navigation }) => {
         total += qty * item.price;
       });
     });
-
     return total;
   };
 
@@ -294,7 +215,7 @@ const CarpetCleaning = ({ navigation }) => {
       cloths: [],
       premiumServices: [],
       total: getTotal(),
-      status: getTotal() > 50 ? 'Scheduled' : 'Rejected',
+      status: getTotal() > 0 ? 'Scheduled' : 'Empty Cart',
       createdAt: new Date().toISOString(),
     };
 
@@ -306,13 +227,13 @@ const CarpetCleaning = ({ navigation }) => {
         .forEach(([clothId, qty]) => {
           const cloth = clothesWithPrices[typeId]?.find(c => c.id === clothId);
           if (cloth) {
-            const serviceType = dryCleaningTypes.find(type => type.id === typeId)?.name;
+            const serviceType = laundryServiceTypes.find(type => type.id === typeId)?.name;
             usedServiceTypes.add(serviceType);
             summary.cloths.push({
               id: clothId,
               name: cloth.name,
               quantity: qty,
-              CleaningType: serviceType,
+              serviceType: serviceType,
               price: cloth.price,
             });
           }
@@ -325,13 +246,13 @@ const CarpetCleaning = ({ navigation }) => {
         .forEach(([serviceId, qty]) => {
           const service = premiumServices[typeId]?.find(s => s.id === serviceId);
           if (service) {
-            const serviceType = dryCleaningTypes.find(type => type.id === typeId)?.name;
+            const serviceType = laundryServiceTypes.find(type => type.id === typeId)?.name;
             usedServiceTypes.add(serviceType);
             summary.premiumServices.push({
               id: serviceId,
               title: service.title,
               quantity: qty,
-              CleaningType: serviceType,
+              serviceType: serviceType,
               price: service.price
             });
           }
@@ -339,6 +260,11 @@ const CarpetCleaning = ({ navigation }) => {
     });
 
     summary.serviceTypes = Array.from(usedServiceTypes);
+
+    if (summary.total === 0) {
+      Alert.alert('Empty Cart', 'Please add items to your order before scheduling.');
+      return;
+    }
 
     try {
       const existing = await AsyncStorage.getItem('orders');
@@ -352,230 +278,382 @@ const CarpetCleaning = ({ navigation }) => {
     dispatch(setStatus(summary.status));
     dispatch(setPrice(summary.total));
 
-    Alert.alert('Scheduled!', 'Your order has been placed.');
+    Alert.alert('Success!', 'Your laundry order has been scheduled.');
     navigation.navigate('ScheduleScreen');
   };
 
-  return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.heading}>Choose Cleaning Type</Text>
+  const ServiceTypeCard = ({ item }) => (
+    <TouchableOpacity
+      style={[
+        styles.typeCard,
+        selectedType?.id === item.id && styles.selectedCard
+      ]}
+      onPress={() => setSelectedType(item)}
+    >
+      <Image source={{ uri: item.image }} style={styles.icon} />
+      <Text style={styles.typeText}>{item.name}</Text>
+    </TouchableOpacity>
+  );
 
-      <View style={styles.typeRow}>
+  const ClothingItem = ({ item }) => {
+    const quantity = clothQuantitiesByType[selectedType.id]?.[item.id] || 0;
+    
+    return (
+      <View style={styles.itemRow}>
+        <View style={styles.itemInfo}>
+          <Text style={styles.itemName}>{item.name}</Text>
+          <Text style={styles.price}>₹{item.price}</Text>
+        </View>
+        <View style={styles.qtyControl}>
+          <TouchableOpacity
+            style={[styles.qtyButton, quantity === 0 && styles.qtyButtonDisabled]}
+            onPress={() => decrementQty(item.id, selectedType.id)}
+            disabled={quantity === 0}
+          >
+            <Icon name="minus" size={16} color={quantity === 0 ? "#ccc" : "#fff"} />
+          </TouchableOpacity>
+          
+          <Text style={styles.qtyText}>{quantity}</Text>
+          
+          <TouchableOpacity
+            style={styles.qtyButton}
+            onPress={() => incrementQty(item.id, selectedType.id)}
+          >
+            <Icon name="plus" size={16} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  const PremiumService = ({ item }) => {
+    const quantity = premiumQuantitiesByType[selectedType.id]?.[item.id] || 0;
+    
+    return (
+      <View style={styles.premiumCard}>
+        <View style={styles.premiumInfo}>
+          <Text style={styles.premiumTitle}>{item.title}</Text>
+          <Text style={styles.premiumDesc}>{item.description}</Text>
+          <Text style={styles.premiumPrice}>₹{item.price}</Text>
+        </View>
+        <View style={styles.qtyControl}>
+          <TouchableOpacity
+            style={[styles.qtyButton, quantity === 0 && styles.qtyButtonDisabled]}
+            onPress={() => decrementQty(item.id, selectedType.id)}
+            disabled={quantity === 0}
+          >
+            <Icon name="minus" size={16} color={quantity === 0 ? "#ccc" : "#fff"} />
+          </TouchableOpacity>
+          
+          <Text style={styles.qtyText}>{quantity}</Text>
+          
+          <TouchableOpacity
+            style={styles.qtyButton}
+            onPress={() => incrementQty(item.id, selectedType.id)}
+          >
+            <Icon name="plus" size={16} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar backgroundColor="#F49905" barStyle="light-content" />
+      
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Laundry Service</Text>
+      </View>
+      
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        <Text style={styles.heading}>Select Service Type</Text>
+        
         <FlatList
           horizontal
-          data={dryCleaningTypes}
+          data={laundryServiceTypes}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <ServiceTypeCard item={item} />}
+          showsHorizontalScrollIndicator={false}
           removeClippedSubviews={false}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              key={item.id}
-              style={[
-                styles.typeCard,
-                selectedType?.id === item.id && styles.selectedCard,
-              ]}
-              onPress={() => setSelectedType(item)}
-            >
-              <Image source={{ uri: item.image }} style={styles.icon} />
-              <Text style={styles.typeText}>{item.name}</Text>
-            </TouchableOpacity>
-          )}
+          contentContainerStyle={styles.typeList}
         />
-      </View>
-
-      <View style={{marginVertical:20}}>
-      <CustomSearch  backgroundColor={"#fff"}         placeholder="Search items..."       value={searchQuery}        onChangeText={setSearchQuery} />
-
-      </View>
-
-    
-
-      {selectedType && (
-        <>
-          <Text style={styles.subheading}>Clothing Items</Text>
-          {(filteredClothes || []).map((cloth) => (
-            <View key={cloth.id} style={styles.itemRow}>
-              <Text style={styles.itemName}>{cloth.name}</Text>
-              <Text style={styles.price}>₹{cloth.price}</Text>
-              <View style={styles.qtyBox}>
-                <TouchableOpacity
-                  onPress={() => decrementQty(cloth.id, selectedType.id)}
-                >
-                  <Icon name="minus-circle-outline" size={26} color="#FFA717" />
-                </TouchableOpacity>
-                <Text style={styles.qtyText}>
-                  {clothQuantitiesByType[selectedType.id]?.[cloth.id] || 0}
-                </Text>
-                <TouchableOpacity
-                  onPress={() => incrementQty(cloth.id, selectedType.id)}
-                >
-                  <Icon name="plus-circle-outline" size={26} color="#FFA717" />
-                </TouchableOpacity>
-              </View>
+        
+        <View style={styles.searchContainer}>
+          <CustomSearch 
+            backgroundColor="#F3F5FF" 
+            placeholder="Search items..." 
+            value={searchQuery} 
+            onChangeText={setSearchQuery} 
+          />
+        </View>
+        
+        {selectedType && (
+          <>
+            <View style={styles.sectionContainer}>
+              <Text style={styles.sectionTitle}>Clothing Items</Text>
+              
+              {filteredClothes.length > 0 ? (
+                filteredClothes.map((item) => (
+                  <ClothingItem key={item.id} item={item} />
+                ))
+              ) : (
+                <Text style={styles.emptyText}>No clothing items found</Text>
+              )}
             </View>
-          ))}
-
-          <Text style={styles.subheading}>Premium Add-ons</Text>
-          {(filteredPremium || []).map((item) => (
-            <View key={item.id} style={styles.premiumCard}>
-              <View>
-                <Text style={styles.premiumTitle}>{item.title}</Text>
-                <Text style={styles.premiumDesc} ellipsizeMode='tail'>{item.description}</Text>
-              </View>
-              <View style={styles.premiumRight}>
-                <Text style={styles.price}>₹{item.price}</Text>
-                <View style={styles.qtyBox}>
-                  <TouchableOpacity
-                    onPress={() => decrementQty(item.id, selectedType.id)}
-                  >
-                    <Icon name="minus-circle-outline" size={26} color="#FFA717" />
-                  </TouchableOpacity>
-                  <Text style={styles.qtyText}>
-                    {premiumQuantitiesByType[selectedType.id]?.[item.id] || 0}
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => incrementQty(item.id, selectedType.id)}
-                  >
-                    <Icon name="plus-circle-outline" size={26} color="#FFA717" />
-                  </TouchableOpacity>
-                </View>
-              </View>
+            
+            <View style={styles.sectionContainer}>
+              <Text style={styles.sectionTitle}>Premium Add-ons</Text>
+              
+              {filteredPremium.length > 0 ? (
+                filteredPremium.map((item) => (
+                  <PremiumService key={item.id} item={item} />
+                ))
+              ) : (
+                <Text style={styles.emptyText}>No premium services found</Text>
+              )}
             </View>
-          ))}
-
-          <Text style={styles.total}>Total: ₹{getTotal()}</Text>
-
-          <TouchableOpacity style={styles.button} onPress={handleSchedule}>
-            <Text style={styles.buttonText}>Confirm & Schedule</Text>
+          </>
+        )}
+        
+        <View style={styles.footer}>
+          <View style={styles.totalContainer}>
+            <Text style={styles.totalLabel}>Total Amount</Text>
+            <Text style={styles.totalAmount}>₹{getTotal()}</Text>
+          </View>
+          
+          <TouchableOpacity 
+            style={[styles.scheduleButton, getTotal() === 0 && styles.disabledButton]} 
+            onPress={handleSchedule}
+            disabled={getTotal() === 0}
+          >
+            <Text style={styles.scheduleButtonText}>Schedule Pickup</Text>
+            <Icon name="arrow-right" size={20} color="#fff" />
           </TouchableOpacity>
-        </>
-      )}
-    </ScrollView>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
-export default CarpetCleaning;
-
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F49905',
+  },
+  header: {
+    backgroundColor: '#F49905',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontFamily: 'Poppins-Bold',
+    fontSize: 20,
+    color: '#FFFFFF',
+  },
   container: {
-    padding: 16,
-    backgroundColor: '#fff',
+    flex: 1,
+    backgroundColor: '#F8F9FF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
   },
   heading: {
-    fontSize: 22,
-    fontFamily: 'Poppins-Bold',
-    color: '#333',
-    marginBottom: 16,
-  },
-  subheading: {
     fontSize: 18,
     fontFamily: 'Poppins-SemiBold',
-    marginTop: 20,
-    marginBottom: 10,
-    color: '#FFA717',
+    color: '#333',
+    marginHorizontal: 20,
+    marginTop: 24,
+    marginBottom: 12,
   },
-  typeRow: {
-    flexDirection: 'row',
-    gap: 12,
+  typeList: {
+    paddingHorizontal: 16,
+    paddingVertical: 4,
   },
   typeCard: {
     alignItems: 'center',
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: '#f9f9f9',
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginRight: 12,
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 6,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    width: 100,
+    height: 100,
   },
   selectedCard: {
-    backgroundColor: '#FFF3E0',
-    borderColor: '#FFA717',
+    backgroundColor: '#E4E9FF',
+    borderColor: '#F49905',
+    borderWidth: 2,
   },
   icon: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
+    marginBottom: 8,
   },
   typeText: {
-    marginTop: 6,
     fontFamily: 'Poppins-Medium',
     fontSize: 12,
     textAlign: 'center',
+    color: '#444',
+  },
+  searchContainer: {
+    marginHorizontal: 20,
+    marginVertical: 16,
+  },
+  sectionContainer: {
+    marginHorizontal: 20,
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontFamily: 'Poppins-SemiBold',
+    color: '#333',
+    marginBottom: 12,
+  },
+  emptyText: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14,
+    color: '#888',
+    textAlign: 'center',
+    paddingVertical: 16,
   },
   itemRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomColor: '#eee',
-    borderBottomWidth: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 8,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+  },
+  itemInfo: {
+    flex: 1,
   },
   itemName: {
-    flex: 1,
-    fontFamily: 'Poppins-Regular',
+    fontFamily: 'Poppins-Medium',
+    fontSize: 15,
+    color: '#333',
+    marginBottom: 4,
   },
   price: {
     fontFamily: 'Poppins-SemiBold',
-    color: '#FFA717',
-    marginRight: 10,
-  },
-  qtyBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  qtyText: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: 16,
-    width: 20,
-    textAlign: 'center',
+    fontSize: 14,
+    color: '#F49905',
   },
   premiumCard: {
-    backgroundColor: '#FAF5EF',
-    padding: 12,
-    borderRadius: 10,
-    marginBottom: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 8,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+  },
+  premiumInfo: {
+    flex: 1,
   },
   premiumTitle: {
     fontFamily: 'Poppins-SemiBold',
     fontSize: 15,
     color: '#333',
+    marginBottom: 2,
   },
   premiumDesc: {
     fontFamily: 'Poppins-Regular',
     fontSize: 12,
-    color: '#777',
-    width: 250
+    color: '#666',
+    marginBottom: 4,
   },
-  premiumRight: {
-    alignItems: 'flex-end',
-  },
-  total: {
-    fontSize: 18,
-    fontFamily: 'Poppins-Bold',
-    marginTop: 20,
-    color: '#000',
-    textAlign: 'right',
-  },
-  searchInput: {
-    marginVertical: 10,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    fontFamily: 'Poppins-Regular',
+  premiumPrice: {
+    fontFamily: 'Poppins-SemiBold',
     fontSize: 14,
+    color: '#F49905',
   },
-  button: {
-    backgroundColor: '#FFA717',
-    paddingVertical: 14,
-    marginTop: 24,
+  qtyControl: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3F5FF',
     borderRadius: 8,
+    padding: 4,
+  },
+  qtyButton: {
+    backgroundColor: '#F49905',
+    borderRadius: 6,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  buttonText: {
+  qtyButtonDisabled: {
+    backgroundColor: '#E0E0E0',
+  },
+  qtyText: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 14,
+    color: '#333',
+    width: 32,
+    textAlign: 'center',
+  },
+  footer: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    marginTop: 10,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  totalContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  totalLabel: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 15,
+    color: '#666',
+  },
+  totalAmount: {
     fontFamily: 'Poppins-Bold',
-    color: '#fff',
+    fontSize: 22,
+    color: '#333',
+  },
+  scheduleButton: {
+    backgroundColor: '#F49905',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 16,
+    borderRadius: 12,
+    gap: 8,
+  },
+  disabledButton: {
+    backgroundColor: '#B2B8DA',
+  },
+  scheduleButtonText: {
+    fontFamily: 'Poppins-Bold',
     fontSize: 16,
+    color: '#FFFFFF',
   },
 });
+
+export default LaundryService;

@@ -8,16 +8,17 @@ import {
   Image,
   Alert,
   FlatList,
-  TextInput
+  StatusBar,
+  SafeAreaView
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { addCloth, setPrice, setStatus } from '../../Redux/Slice/AddClothSlice';
 import { useDispatch } from 'react-redux';
+import { addCloth, setPrice, setStatus } from '../../Redux/Slice/AddClothSlice';
 import uuid from 'react-native-uuid';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomSearch from '../../components/CustomInput/CustomSearch';
 
-const CarpetCleaning = ({ navigation }) => {
+const LaundryService = ({ navigation }) => {
   const [selectedType, setSelectedType] = useState(null);
   const [clothQuantitiesByType, setClothQuantitiesByType] = useState({
     '1': {}, '2': {}, '3': {}, '4': {}
@@ -25,7 +26,7 @@ const CarpetCleaning = ({ navigation }) => {
   const [premiumQuantitiesByType, setPremiumQuantitiesByType] = useState({
     '1': {}, '2': {}, '3': {}, '4': {}
   });
-  const [searchQuery, setSearchQuery] = useState(''); 
+  const [searchQuery, setSearchQuery] = useState('');
   const [filteredClothes, setFilteredClothes] = useState([]);
   const [filteredPremium, setFilteredPremium] = useState([]);
 
@@ -131,7 +132,6 @@ const CarpetCleaning = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-
     if (selectedType) {
       const clothes = ironedClothesWithPrices[selectedType.id]?.filter(cloth =>
         cloth.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -139,7 +139,6 @@ const CarpetCleaning = ({ navigation }) => {
       const premium = ironingPremiumServices[selectedType.id]?.filter(service =>
         service.title.toLowerCase().includes(searchQuery.toLowerCase())
       ) || [];
-
       setFilteredClothes(clothes);
       setFilteredPremium(premium);
     }
@@ -195,7 +194,6 @@ const CarpetCleaning = ({ navigation }) => {
 
   const getTotal = () => {
     let total = 0;
-
     Object.keys(clothQuantitiesByType).forEach(typeId => {
       const clothItems = ironedClothesWithPrices[typeId] || [];
       clothItems.forEach(item => {
@@ -203,7 +201,6 @@ const CarpetCleaning = ({ navigation }) => {
         total += qty * item.price;
       });
     });
-
     Object.keys(premiumQuantitiesByType).forEach(typeId => {
       const premiumItems = ironingPremiumServices[typeId] || [];
       premiumItems.forEach(item => {
@@ -211,7 +208,6 @@ const CarpetCleaning = ({ navigation }) => {
         total += qty * item.price;
       });
     });
-
     return total;
   };
 
@@ -222,7 +218,7 @@ const CarpetCleaning = ({ navigation }) => {
       cloths: [],
       ironingPremiumServices: [],
       total: getTotal(),
-      status: getTotal() > 50 ? 'Scheduled' : 'Rejected',
+      status: getTotal() > 0 ? 'Scheduled' : 'Empty Cart',
       createdAt: new Date().toISOString(),
     };
 
@@ -240,7 +236,7 @@ const CarpetCleaning = ({ navigation }) => {
               id: clothId,
               name: cloth.name,
               quantity: qty,
-              CleaningType: serviceType,
+              serviceType: serviceType,
               price: cloth.price,
             });
           }
@@ -259,7 +255,7 @@ const CarpetCleaning = ({ navigation }) => {
               id: serviceId,
               title: service.title,
               quantity: qty,
-              CleaningType: serviceType,
+              serviceType: serviceType,
               price: service.price
             });
           }
@@ -267,6 +263,11 @@ const CarpetCleaning = ({ navigation }) => {
     });
 
     summary.serviceTypes = Array.from(usedServiceTypes);
+
+    if (summary.total === 0) {
+      Alert.alert('Empty Cart', 'Please add items to your order before scheduling.');
+      return;
+    }
 
     try {
       const existing = await AsyncStorage.getItem('orders');
@@ -280,230 +281,382 @@ const CarpetCleaning = ({ navigation }) => {
     dispatch(setStatus(summary.status));
     dispatch(setPrice(summary.total));
 
-    Alert.alert('Scheduled!', 'Your order has been placed.');
+    Alert.alert('Success!', 'Your laundry order has been scheduled.');
     navigation.navigate('ScheduleScreen');
   };
 
-  return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.heading}>Choose Cleaning Type</Text>
+  const ServiceTypeCard = ({ item }) => (
+    <TouchableOpacity
+      style={[
+        styles.typeCard,
+        selectedType?.id === item.id && styles.selectedCard
+      ]}
+      onPress={() => setSelectedType(item)}
+    >
+      <Image source={{ uri: item.image }} style={styles.icon} />
+      <Text style={styles.typeText}>{item.name}</Text>
+    </TouchableOpacity>
+  );
 
-      <View style={styles.typeRow}>
+  const ClothingItem = ({ item }) => {
+    const quantity = clothQuantitiesByType[selectedType.id]?.[item.id] || 0;
+    
+    return (
+      <View style={styles.itemRow}>
+        <View style={styles.itemInfo}>
+          <Text style={styles.itemName}>{item.name}</Text>
+          <Text style={styles.price}>₹{item.price}</Text>
+        </View>
+        <View style={styles.qtyControl}>
+          <TouchableOpacity
+            style={[styles.qtyButton, quantity === 0 && styles.qtyButtonDisabled]}
+            onPress={() => decrementQty(item.id, selectedType.id)}
+            disabled={quantity === 0}
+          >
+            <Icon name="minus" size={16} color={quantity === 0 ? "#ccc" : "#fff"} />
+          </TouchableOpacity>
+          
+          <Text style={styles.qtyText}>{quantity}</Text>
+          
+          <TouchableOpacity
+            style={styles.qtyButton}
+            onPress={() => incrementQty(item.id, selectedType.id)}
+          >
+            <Icon name="plus" size={16} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  const PremiumService = ({ item }) => {
+    const quantity = premiumQuantitiesByType[selectedType.id]?.[item.id] || 0;
+    
+    return (
+      <View style={styles.premiumCard}>
+        <View style={styles.premiumInfo}>
+          <Text style={styles.premiumTitle}>{item.title}</Text>
+          <Text style={styles.premiumDesc}>{item.description}</Text>
+          <Text style={styles.premiumPrice}>₹{item.price}</Text>
+        </View>
+        <View style={styles.qtyControl}>
+          <TouchableOpacity
+            style={[styles.qtyButton, quantity === 0 && styles.qtyButtonDisabled]}
+            onPress={() => decrementQty(item.id, selectedType.id)}
+            disabled={quantity === 0}
+          >
+            <Icon name="minus" size={16} color={quantity === 0 ? "#ccc" : "#fff"} />
+          </TouchableOpacity>
+          
+          <Text style={styles.qtyText}>{quantity}</Text>
+          
+          <TouchableOpacity
+            style={styles.qtyButton}
+            onPress={() => incrementQty(item.id, selectedType.id)}
+          >
+            <Icon name="plus" size={16} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar backgroundColor="#F49905" barStyle="light-content" />
+      
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Laundry Service</Text>
+      </View>
+      
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        <Text style={styles.heading}>Select Service Type</Text>
+        
         <FlatList
           horizontal
           data={ironingTypes}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <ServiceTypeCard item={item} />}
+          showsHorizontalScrollIndicator={false}
           removeClippedSubviews={false}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              key={item.id}
-              style={[
-                styles.typeCard,
-                selectedType?.id === item.id && styles.selectedCard,
-              ]}
-              onPress={() => setSelectedType(item)}
-            >
-              <Image source={{ uri: item.image }} style={styles.icon} />
-              <Text style={styles.typeText}>{item.name}</Text>
-            </TouchableOpacity>
-          )}
+          contentContainerStyle={styles.typeList}
         />
-      </View>
-
-      <View style={{marginVertical:20}}>
-      <CustomSearch  backgroundColor={"#fff"}         placeholder="Search items..."       value={searchQuery}        onChangeText={setSearchQuery} />
-
-      </View>
-
-    
-
-      {selectedType && (
-        <>
-          <Text style={styles.subheading}>Clothing Items</Text>
-          {(filteredClothes || []).map((cloth) => (
-            <View key={cloth.id} style={styles.itemRow}>
-              <Text style={styles.itemName}>{cloth.name}</Text>
-              <Text style={styles.price}>₹{cloth.price}</Text>
-              <View style={styles.qtyBox}>
-                <TouchableOpacity
-                  onPress={() => decrementQty(cloth.id, selectedType.id)}
-                >
-                  <Icon name="minus-circle-outline" size={26} color="#FFA717" />
-                </TouchableOpacity>
-                <Text style={styles.qtyText}>
-                  {clothQuantitiesByType[selectedType.id]?.[cloth.id] || 0}
-                </Text>
-                <TouchableOpacity
-                  onPress={() => incrementQty(cloth.id, selectedType.id)}
-                >
-                  <Icon name="plus-circle-outline" size={26} color="#FFA717" />
-                </TouchableOpacity>
-              </View>
+        
+        <View style={styles.searchContainer}>
+          <CustomSearch 
+            backgroundColor="#F3F5FF" 
+            placeholder="Search items..." 
+            value={searchQuery} 
+            onChangeText={setSearchQuery} 
+          />
+        </View>
+        
+        {selectedType && (
+          <>
+            <View style={styles.sectionContainer}>
+              <Text style={styles.sectionTitle}>Clothing Items</Text>
+              
+              {filteredClothes.length > 0 ? (
+                filteredClothes.map((item) => (
+                  <ClothingItem key={item.id} item={item} />
+                ))
+              ) : (
+                <Text style={styles.emptyText}>No clothing items found</Text>
+              )}
             </View>
-          ))}
-
-          <Text style={styles.subheading}>Premium Add-ons</Text>
-          {(filteredPremium || []).map((item) => (
-            <View key={item.id} style={styles.premiumCard}>
-              <View>
-                <Text style={styles.premiumTitle}>{item.title}</Text>
-                <Text style={styles.premiumDesc} ellipsizeMode='tail'>{item.description}</Text>
-              </View>
-              <View style={styles.premiumRight}>
-                <Text style={styles.price}>₹{item.price}</Text>
-                <View style={styles.qtyBox}>
-                  <TouchableOpacity
-                    onPress={() => decrementQty(item.id, selectedType.id)}
-                  >
-                    <Icon name="minus-circle-outline" size={26} color="#FFA717" />
-                  </TouchableOpacity>
-                  <Text style={styles.qtyText}>
-                    {premiumQuantitiesByType[selectedType.id]?.[item.id] || 0}
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => incrementQty(item.id, selectedType.id)}
-                  >
-                    <Icon name="plus-circle-outline" size={26} color="#FFA717" />
-                  </TouchableOpacity>
-                </View>
-              </View>
+            
+            <View style={styles.sectionContainer}>
+              <Text style={styles.sectionTitle}>Premium Add-ons</Text>
+              
+              {filteredPremium.length > 0 ? (
+                filteredPremium.map((item) => (
+                  <PremiumService key={item.id} item={item} />
+                ))
+              ) : (
+                <Text style={styles.emptyText}>No premium services found</Text>
+              )}
             </View>
-          ))}
-
-          <Text style={styles.total}>Total: ₹{getTotal()}</Text>
-
-          <TouchableOpacity style={styles.button} onPress={handleSchedule}>
-            <Text style={styles.buttonText}>Confirm & Schedule</Text>
+          </>
+        )}
+        
+        <View style={styles.footer}>
+          <View style={styles.totalContainer}>
+            <Text style={styles.totalLabel}>Total Amount</Text>
+            <Text style={styles.totalAmount}>₹{getTotal()}</Text>
+          </View>
+          
+          <TouchableOpacity 
+            style={[styles.scheduleButton, getTotal() === 0 && styles.disabledButton]} 
+            onPress={handleSchedule}
+            disabled={getTotal() === 0}
+          >
+            <Text style={styles.scheduleButtonText}>Schedule Pickup</Text>
+            <Icon name="arrow-right" size={20} color="#fff" />
           </TouchableOpacity>
-        </>
-      )}
-    </ScrollView>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
-export default CarpetCleaning;
-
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F49905',
+  },
+  header: {
+    backgroundColor: '#F49905',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontFamily: 'Poppins-Bold',
+    fontSize: 20,
+    color: '#FFFFFF',
+  },
   container: {
-    padding: 16,
-    backgroundColor: '#fff',
+    flex: 1,
+    backgroundColor: '#F8F9FF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
   },
   heading: {
-    fontSize: 22,
-    fontFamily: 'Poppins-Bold',
-    color: '#333',
-    marginBottom: 16,
-  },
-  subheading: {
     fontSize: 18,
     fontFamily: 'Poppins-SemiBold',
-    marginTop: 20,
-    marginBottom: 10,
-    color: '#FFA717',
+    color: '#333',
+    marginHorizontal: 20,
+    marginTop: 24,
+    marginBottom: 12,
   },
-  typeRow: {
-    flexDirection: 'row',
-    gap: 12,
+  typeList: {
+    paddingHorizontal: 16,
+    paddingVertical: 4,
   },
   typeCard: {
     alignItems: 'center',
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: '#f9f9f9',
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginRight: 12,
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 6,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    width: 100,
+    height: 100,
   },
   selectedCard: {
-    backgroundColor: '#FFF3E0',
-    borderColor: '#FFA717',
+    backgroundColor: '#E4E9FF',
+    borderColor: '#F49905',
+    borderWidth: 2,
   },
   icon: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
+    marginBottom: 8,
   },
   typeText: {
-    marginTop: 6,
     fontFamily: 'Poppins-Medium',
     fontSize: 12,
     textAlign: 'center',
+    color: '#444',
+  },
+  searchContainer: {
+    marginHorizontal: 20,
+    marginVertical: 16,
+  },
+  sectionContainer: {
+    marginHorizontal: 20,
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontFamily: 'Poppins-SemiBold',
+    color: '#333',
+    marginBottom: 12,
+  },
+  emptyText: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14,
+    color: '#888',
+    textAlign: 'center',
+    paddingVertical: 16,
   },
   itemRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomColor: '#eee',
-    borderBottomWidth: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 8,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+  },
+  itemInfo: {
+    flex: 1,
   },
   itemName: {
-    flex: 1,
-    fontFamily: 'Poppins-Regular',
+    fontFamily: 'Poppins-Medium',
+    fontSize: 15,
+    color: '#333',
+    marginBottom: 4,
   },
   price: {
     fontFamily: 'Poppins-SemiBold',
-    color: '#FFA717',
-    marginRight: 10,
-  },
-  qtyBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  qtyText: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: 16,
-    width: 20,
-    textAlign: 'center',
+    fontSize: 14,
+    color: '#F49905',
   },
   premiumCard: {
-    backgroundColor: '#FAF5EF',
-    padding: 12,
-    borderRadius: 10,
-    marginBottom: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 8,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+  },
+  premiumInfo: {
+    flex: 1,
   },
   premiumTitle: {
     fontFamily: 'Poppins-SemiBold',
     fontSize: 15,
     color: '#333',
+    marginBottom: 2,
   },
   premiumDesc: {
     fontFamily: 'Poppins-Regular',
     fontSize: 12,
-    color: '#777',
-    width: 250
+    color: '#666',
+    marginBottom: 4,
   },
-  premiumRight: {
-    alignItems: 'flex-end',
-  },
-  total: {
-    fontSize: 18,
-    fontFamily: 'Poppins-Bold',
-    marginTop: 20,
-    color: '#000',
-    textAlign: 'right',
-  },
-  searchInput: {
-    marginVertical: 10,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    fontFamily: 'Poppins-Regular',
+  premiumPrice: {
+    fontFamily: 'Poppins-SemiBold',
     fontSize: 14,
+    color: '#F49905',
   },
-  button: {
-    backgroundColor: '#FFA717',
-    paddingVertical: 14,
-    marginTop: 24,
+  qtyControl: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3F5FF',
     borderRadius: 8,
+    padding: 4,
+  },
+  qtyButton: {
+    backgroundColor: '#F49905',
+    borderRadius: 6,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  buttonText: {
+  qtyButtonDisabled: {
+    backgroundColor: '#E0E0E0',
+  },
+  qtyText: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 14,
+    color: '#333',
+    width: 32,
+    textAlign: 'center',
+  },
+  footer: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    marginTop: 10,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  totalContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  totalLabel: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 15,
+    color: '#666',
+  },
+  totalAmount: {
     fontFamily: 'Poppins-Bold',
-    color: '#fff',
+    fontSize: 22,
+    color: '#333',
+  },
+  scheduleButton: {
+    backgroundColor: '#F49905',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 16,
+    borderRadius: 12,
+    gap: 8,
+  },
+  disabledButton: {
+    backgroundColor: '#B2B8DA',
+  },
+  scheduleButtonText: {
+    fontFamily: 'Poppins-Bold',
     fontSize: 16,
+    color: '#FFFFFF',
   },
 });
+
+export default LaundryService;
